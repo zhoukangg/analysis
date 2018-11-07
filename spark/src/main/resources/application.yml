@@ -1,0 +1,4 @@
+spark:
+  spark-home: .
+  app-name: sparkTest
+  master: local[4]

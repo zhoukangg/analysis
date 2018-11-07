@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- 基本信息 -->
+    <description>SpringBoot 多模块构建</description>
+    <modelVersion>4.0.0</modelVersion>
+    <name>analysis</name>
+    <packaging>pom</packaging>
+
+    <!-- 项目说明：这里作为聚合工程的父工程 -->
+    <groupId>bupt.edu.cn</groupId>
+    <artifactId>analysis</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <!--<packaging>jar</packaging>-->
+
+    <!--<name>analysis</name>-->
+    <!--<description>BigDataAnalysis project for Spring Boot with Spark and Kylin</description>-->
+
+    <!-- 继承说明：这里继承SpringBoot提供的父工程 -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.1.0.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <!-- 模块说明：这里声明多个子模块 -->
+    <modules>
+        <module>web</module>
+        <module>kylin</module>
+        <module>spark</module>
+        <!--<module>common</module>-->
+    </modules>
+
+    <!-- 版本说明：这里统一管理依赖的版本号 -->
+    <dependencyManagement>
+        <dependencies>
+
+            <dependency>
+                <groupId>bupt.edu.cn</groupId>
+                <artifactId>web</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>bupt.edu.cn</groupId>
+                <artifactId>kylin</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>bupt.edu.cn</groupId>
+                <artifactId>spark</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>bupt.edu.cn</groupId>
+                <artifactId>common</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>5.1.42</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+
+    <!--<properties>-->
+        <!--<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
+        <!--<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>-->
+        <!--<java.version>1.8</java.version>-->
+    <!--</properties>-->
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter-web</artifactId>-->
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.springframework.boot</groupId>-->
+                    <!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.springframework.boot</groupId>-->
+                    <!--<artifactId>spring-boot-starter-logging</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter-log4j</artifactId>-->
+        <!--</dependency>-->
+
+    </dependencies>
+
+    <!--<build>-->
+        <!--<plugins>-->
+            <!--<plugin>-->
+                <!--<groupId>org.springframework.boot</groupId>-->
+                <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
+            <!--</plugin>-->
+        <!--</plugins>-->
+    <!--</build>-->
+
+
+</project>
