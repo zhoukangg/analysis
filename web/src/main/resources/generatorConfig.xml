@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<!-- 配置Run As Maven build : Goals 参数 : mybatis-generator:generate -Dmybatis.generator.overwrite=true -->
+<!-- 配置 tableName,使用 Run As Maven build 生成 dao model 层 -->
+<generatorConfiguration>
+    <!-- 配置文件路径 -->
+
+    <!--数据库驱动包路径 -->
+    <classPathEntry location="/Users/kang/.m2/repository/mysql/mysql-connector-java/5.1.44/mysql-connector-java-5.1.44.jar"/>
+
+    <context id="DB2Tables" targetRuntime="MyBatis3">
+        <!--关闭注释 -->
+        <commentGenerator>
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+
+        <!--数据库连接信息 -->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://10.108.211.136:3306/preprocess" userId="root"
+                        password="mySQL#h@d00p">
+        </jdbcConnection>
+
+        <!--生成的model 包路径 -->
+        <javaModelGenerator targetPackage="bupt.edu.cn.web.pojo" targetProject="src/main/java">
+            <property name="enableSubPackages" value="ture"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!--生成xml mapper文件 路径 -->
+        <sqlMapGenerator targetPackage="bupt.edu.cn.web.dao" targetProject="src/main/java">
+            <property name="enableSubPackages" value="ture"/>
+        </sqlMapGenerator>
+
+        <!-- 生成的Dao接口 的包路径 -->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="bupt.edu.cn.web.dao" targetProject="src/main/java">
+            <property name="enableSubPackages" value="ture"/>
+        </javaClientGenerator>
+
+        <!--对应数据库表名 -->
+        <!--<table tableName="processlist"></table>-->
+
+        <!--<table tableName="falt_table"></table>-->
+        <!--<table tableName="diagram"></table>-->
+        <!--<table tableName="user"></table>-->
+        <!--<table tableName="data_source"></table>-->
+        <!--<table tableName="dashboard"></table>-->
+        <table tableName="story"></table>
+        <table tableName="story_item"></table>
+
+        <!-- <table schema="${jdbc.schema}" tableName="test"
+       domainObjectName="Test" enableCountByExample="true"
+       enableDeleteByExample="true" enableSelectByExample="true"
+       enableUpdateByExample="true">
+		</table> -->
+		
+    </context>
+</generatorConfiguration>
