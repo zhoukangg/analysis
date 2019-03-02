@@ -285,21 +285,21 @@ public class SQLGenerate {
 //Y        sql = "select month, min(`Transaction_min`) as Transaction_min from `BreadBasket_DMS-Transaction_min` where year = `2017` group by month";
 //M        sql = "select day, min(`Transaction_min`) as Transaction_min from `BreadBasket_DMS-Transaction_min` where year = '2017' and month = '3' group by day";
 //XXX      sql = "select year, min(`Transaction_min`) as Transaction_min from `BreadBasket_DMS-Transaction_min` group by year"
-//D        sql = "select day, min(`Transaction_min`) as Transaction_min from `BreadBasket_DMS-Transaction_min` where year = '2017' and month = '3' and day = '11'";
+//D        sql = "select day, Transaction_min as Transaction_min from `BreadBasket_DMS-Transaction_min` where year = '2017' and month = '3' and day = '11'";
         String paramName = measArr[0] + "(`" + measArr[1] + "_" + measArr[0] + "`)";       //min(`Transaction_min`)
         if (year != -1 && month == -1 && day == -1){        //以1年的12个月为维度进行计算
-            result = "select month, " + paramName + " as " + measArr[1] + "_" + measArr[0] + " from `" + tablename + "` where year = '" + year + "' group by month";
+            result = "select month, " + paramName + " as `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` where year = '" + year + "' group by month";
         }else if (year != -1 && month != -1 && day == -1){  //以1月的31天为维度进行计算
-            result = "select day, " + paramName + " as " + measArr[1] + "_" + measArr[0] + " from `" + tablename + "` where year = '" + year + "' and month = '" + month + "' group by day";
+            result = "select day, " + paramName + " as `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` where year = '" + year + "' and month = '" + month + "' group by day";
         }else if (year != -1 && month != -1 && day != -1){  //以1日为维度进行计算（意义不大）
-            result = "select day, " + measArr[1] + "_" + measArr[0] + " from `" + tablename + "` where year = '" + year + "' and month = '" + month + "' and day = '" + day + "'";
+            result = "select day, `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` where year = '" + year + "' and month = '" + month + "' and day = '" + day + "'";
         }else if (year == -1 && month == -1 && day == -1){  //以初始的n年为维度进行计算
-            result = "select year, " + paramName + " as " + measArr[1] + "_" + measArr[0] + " from `" + tablename + "` group by year";
+            result = "select year, " + paramName + " as `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` group by year";
         }else{
             result = "select * from `" + tablename + "` limit 1;";
             System.out.println("输入year, month, day数据格式有误.");
         }
-
+        System.out.println("The Drill SQL is :" + result);
         return result;
     }
 }

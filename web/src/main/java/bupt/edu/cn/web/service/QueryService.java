@@ -4,7 +4,6 @@ import bupt.edu.cn.kylin.service.KylinQueryService;
 import bupt.edu.cn.spark.common.SpSession;
 import bupt.edu.cn.spark.service.impl.SparkSqlServiceImpl;
 import bupt.edu.cn.web.repository.DiagramRepository;
-import bupt.edu.cn.web.util.QueryRoute;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -37,7 +36,7 @@ public class QueryService {
     @Autowired
     KylinQueryService kylinQueryService;
 
-    public List<Map> getQueryDataWithDate(String fileUrl, String tableName, String sql){
+    public synchronized List<Map> getQueryDataWithDate(String fileUrl, String tableName, String sql){
         List<Map> listJson = new ArrayList<>();
         SparkSession spark = spSession.getSparkSession();
         try{

@@ -1,4 +1,5 @@
 package bupt.edu.cn.web.controller;
+import bupt.edu.cn.spark.utils.FileOperate;
 import bupt.edu.cn.web.common.WebConstant;
 import bupt.edu.cn.web.pojo.Diagram;
 import bupt.edu.cn.web.repository.DiagramRepository;
@@ -211,16 +212,43 @@ public class DiaController {
         SQLGenerate sqlGenerate = new SQLGenerate();
         //获取SQL
         String sql;
-        if (meaArr.size() == 1 && dimArr.length == 0)     //兼容指标卡的特殊Option
-            sql =sqlGenerate.getWithOnemeas(funArr,meaArr,tableName,fileType,fileUrl,routeStr);
-        else
-            sql = sqlGenerate.getWithGroup(dimArr, funArr, meaArr,tableName,fileType,fileUrl,routeStr,limit);
-        System.out.println("The SQL is: " + sql);
-        List<Map> listJson = queryService.getQueryData(Arrays.asList(dimArr), funArr, meaArr, fileUrl, tableName, sql, routeStr);
+
+        String drillFileNameJudge = "";
+//        String drillpath = "/Users/user1/Desktop/";
+        String drillpath = "/home/fatbird/workspace/";
+        if (meaArr.size() > 0 && funArr.size() > 0)
+            drillFileNameJudge +=tableName + "-" + meaArr.get(0) + "_" + funArr.get(0);
+        List<Map> listJson;
+        if (!FileOperate.initDrillJudge(drillpath,drillFileNameJudge)){     //不是上卷下钻且目录中无之前的文件
+//            进入了非上卷下钻的操作
+            if (meaArr.size() == 1 && dimArr.length == 0)     //兼容指标卡的特殊Option
+                sql =sqlGenerate.getWithOnemeas(funArr,meaArr,tableName,fileType,fileUrl,routeStr);
+            else
+                sql = sqlGenerate.getWithGroup(dimArr, funArr, meaArr,tableName,fileType,fileUrl,routeStr,limit);
+            System.out.println("The SQL is: " + sql);
+            listJson = queryService.getQueryData(Arrays.asList(dimArr), funArr, meaArr, fileUrl, tableName, sql, routeStr);
+        }else{
+//            进入了上卷下钻的操作
+            sql = sqlGenerate.getWithScrollDrill(drillFileNameJudge,meas.split("\\."),-1,-1,-1);
+            listJson = queryService.getQueryDataWithDate(drillpath + drillFileNameJudge,drillFileNameJudge,sql);
+        }
+
         Boolean drillflag = false;
         if (listJson.size() != 0)
             if (!listJson.get(0).containsKey(dims))  //用来判断是否是可以上卷下钻的
                 drillflag = true;
+        if (drillflag){                             //为上卷下钻排序并增加一个"年"的后缀
+            Collections.sort(listJson, new Comparator<Map>() {  //給整个listJson进行排序
+                public int compare(Map o1, Map o2) {
+                    Integer date1 = Integer.valueOf(o1.get("year").toString());
+                    Integer date2 = Integer.valueOf(o2.get("year").toString());
+                    return date1.compareTo(date2);
+                }
+            });
+            for (Map tempmap : listJson){
+                tempmap.put("year",tempmap.get("year").toString() + "年");
+            }
+        }
         //生成图的类型
         String clas ="";
         if (dimArr.length == 0){
@@ -503,7 +531,8 @@ public class DiaController {
 
         SQLGenerate sqlGenerate = new SQLGenerate();
         String sql = "";
-        String pathurl = "/Users/user1/Desktop/";
+        String pathurl = "/home/fatbird/workspace/";
+//        String pathurl = "/Users/user1/Desktop/";
         sql = sqlGenerate.getWithScrollDrill(fileName, measArr, year, month, day);
         System.out.println("The SQL is : " + sql);
         List<Map> listJson = queryService.getQueryDataWithDate(pathurl+fileName,fileName,sql);
@@ -535,10 +564,6 @@ public class DiaController {
         }
         //整理listJson结束
 
-        System.out.println("###########");
-        System.out.println(listJson);
-        System.out.println("###########");
-
         JSONObject re = new JSONObject();
         Diagram diagram = new Diagram();
         List<String> mea_fun = new ArrayList<>();
@@ -553,6 +578,9 @@ public class DiaController {
         re.put("diagramName",diagram.getName());
         re.put("classificaion",diagram.getClassification());
         re.put("userId",diagram.getUserId());
+        re.put("year",year);
+        re.put("month",month);
+        re.put("day",day);
         re.put("dataSourceId",diagram.getDataSourceId());
         re.put("drillflag",true);
 

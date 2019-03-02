@@ -90,4 +90,19 @@ public class FileOperate {
             return false;
         }
     }
+
+    public static boolean initDrillJudge(String path, String fileName){
+        boolean flag = false;
+        fileName += ".csv";
+        try {
+            File pathfile = new File(path);
+            File[] fs = pathfile.listFiles();
+            for (File f : fs)
+                if (f.getName().equals(fileName))
+                    flag = true;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return flag;
+    }
 }

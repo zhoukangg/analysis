@@ -24,13 +24,12 @@ public class SparkSqlServiceImpl implements Serializable {
         try{
             Dataset<Row> df = spark.read().option("header",true).csv(fileUrl);
             df.createOrReplaceTempView("`"+tableName+"`");//不能使用特殊符号如. 等等
-            System.out.println(sql);
             Dataset<Row> sqlDF = spark.sql(sql);
             String pattern = "(19|20)\\d{2}(\\\\|\\/|-|年)((0?\\d)|(1[0-2]))(\\\\|\\/|-|月)((0?\\d)|((1|2)\\d)|3(0|1))日?";
-            // TODO: 2019/1/21  flag在Controller里面加，这里加会造成DataSet混乱
             for (int i=0; i < sqlDF.columns().length;i++){  //注！仅支持一维度
+                System.out.println("开始按照上卷下钻进行分析");
                 String columnData = sqlDF.first().get(i).toString();
-                if (Pattern.matches(pattern,columnData)){  //该列匹配卷钻策略
+                if (Pattern.matches(pattern,columnData) && sqlDF.columns().length > 1){  //该列匹配卷钻策略
                     String nolimtSql = sql.split(" limit ")[0];
                     String colName = nolimtSql.split(" ")[3].split("`")[1];
                     Dataset<Row> twoColumnData = spark.sql(nolimtSql);  //得到全部数据的一个表
@@ -38,7 +37,8 @@ public class SparkSqlServiceImpl implements Serializable {
                     Dataset<Row> dataDS = DatetableTrans.transDS(twoColumnData, i); //解析出年月日
                     sqlDF = twoColumnData.join(dataDS,twoColumnData.col(twoColumnData.columns()[i]).equalTo(dataDS.col("stringTime")),"left_outer").drop("stringTime");//将年月日3列加入Dataset中
                     sqlDF = sqlDF.drop(sqlDF.columns()[i]);     //删除掉默认的2017-1-1的列
-                    String pathName = "/Users/user1/Desktop/";
+//                    String pathName = "/Users/user1/Desktop/";
+                    String pathName = "/home/fatbird/workspace/";
                     String saveName = pathName + tableName + "-" + colName;
                     System.out.println("Save path is :" + saveName);
                     sqlDF.write().option("header", "true").csv(saveName);
@@ -54,9 +54,11 @@ public class SparkSqlServiceImpl implements Serializable {
                             break;
                         case "sum":
                             sqlDF = sqlDF.groupBy("year").sum(colName);
+                            sqlDF = sqlDF.withColumn(colName,sqlDF.col("sum("+ colName +")").name(colName)).drop("sum("+ colName +")");
                             break;
                         case "avg":
                             sqlDF = sqlDF.groupBy("year").avg(colName);
+                            sqlDF = sqlDF.withColumn(colName,sqlDF.col("avg("+ colName +")").name(colName)).drop("avg("+ colName +")");
                             break;
                         default:
                             break;
