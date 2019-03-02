@@ -26,7 +26,6 @@ public class FileOperate {
                             if (reader.getHeaders().length != 0) {
                                 head = reader.getHeaders();
                                 headerflag = false;
-                                System.out.println(head.length);
                                 writer.writeRecord(head);
                             }
                         }
@@ -35,7 +34,6 @@ public class FileOperate {
                                 writer.write(reader.get(head[i]));
                                 if (i == head.length - 1)
                                     writer.endRecord();
-                                System.out.println(head[i] + ":" +reader.get(head[i]));
                             }
                         }
                         reader.close();
@@ -43,7 +41,6 @@ public class FileOperate {
                 }
             }
             writer.close();
-            System.out.println("文件输出成功");
             deleteDirectory(filepath + newName);    //删除之前的文件夹
         }catch (Exception e){
             e.printStackTrace();

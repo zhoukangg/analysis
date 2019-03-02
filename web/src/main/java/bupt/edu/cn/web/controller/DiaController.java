@@ -289,10 +289,6 @@ public class DiaController {
             for (int i = 0;i<listJson.size();i++){
                 com.alibaba.fastjson.JSONArray now = cowJson;
                 for (int j = 0;j<cowList.size();j++){
-                    System.out.println("$$$$$$$$$$$$$");
-                    System.out.println(listJson);
-                    System.out.println(i);
-                    System.out.println(cowList.get(j));
                     String value;
                     if(listJson.get(i).containsKey(cowList.get(j)))
                         value = listJson.get(i).get(cowList.get(j)).toString();
@@ -340,7 +336,6 @@ public class DiaController {
 
                 for (int j = 0;j<rowArr.length;j++){
                     String value = listJson.get(i).get(rowArr[j]).toString();
-//                    System.out.println("value = "+value);
                     int flag = isExistInJSONArray(now,"name",value);
                     if (flag == -1){
                         com.alibaba.fastjson.JSONObject obj = new com.alibaba.fastjson.JSONObject();
@@ -440,13 +435,10 @@ public class DiaController {
                 String xType = chOption.getJSONObject("xAxis").getString("type");
                 int seriesLength = chOption.getJSONArray("series").length();
                 if (chOption.getJSONObject("yAxis").has("data")){
-                    System.out.println(123);
                     int_typeBefore = 6;     //条形图
                 } else if(seriesLength > 1) {
-                    System.out.println(456);
                     int_typeBefore = 1;     //堆积图
                 } else {
-                    System.out.println(789);
                     int_typeBefore = 0;     //柱状图
                 }
                 break;
@@ -515,6 +507,7 @@ public class DiaController {
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
         System.out.println("----------------DataScrollDrill-----------");
+        System.out.println("year = " + year + ", month = " + month + ", day = " + day);
         JSONObject result = new JSONObject();
 
         String[] measArr = mea.split("\\.");

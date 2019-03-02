@@ -62,7 +62,6 @@ public class StringUtil {
             if (!keyString.contains("_"))
                 dateColName = keyString;
         }
-        System.out.println(dateColName);
         return dateColName;
     }
 }
