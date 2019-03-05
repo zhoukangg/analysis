@@ -279,7 +279,7 @@ public class SQLGenerate {
         return hdl;
     }
 
-    public String getWithScrollDrill(String tablename, String[] measArr, int year, int month, int day){
+    public String getWithScrollDrill(String tablename, String[] measArr, int year, int season, int month, int day){
         //上卷下钻专用SQL生成器
         String result = "";
 //Y        sql = "select month, min(`Transaction_min`) as Transaction_min from `BreadBasket_DMS-Transaction_min` where year = `2017` group by month";
@@ -287,16 +287,18 @@ public class SQLGenerate {
 //XXX      sql = "select year, min(`Transaction_min`) as Transaction_min from `BreadBasket_DMS-Transaction_min` group by year"
 //D        sql = "select day, Transaction_min as Transaction_min from `BreadBasket_DMS-Transaction_min` where year = '2017' and month = '3' and day = '11'";
         String paramName = measArr[0] + "(`" + measArr[1] + "_" + measArr[0] + "`)";       //min(`Transaction_min`)
-        if (year != -1 && month == -1 && day == -1){        //以1年的12个月为维度进行计算
-            result = "select month, " + paramName + " as `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` where year = '" + year + "' group by month";
-        }else if (year != -1 && month != -1 && day == -1){  //以1月的31天为维度进行计算
-            result = "select day, " + paramName + " as `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` where year = '" + year + "' and month = '" + month + "' group by day";
-        }else if (year != -1 && month != -1 && day != -1){  //以1日为维度进行计算（意义不大）
-            result = "select day, `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` where year = '" + year + "' and month = '" + month + "' and day = '" + day + "'";
-        }else if (year == -1 && month == -1 && day == -1){  //以初始的n年为维度进行计算
+        if (year != -1 && season == -1 && month == -1 && day == -1){        //以1年的4个季度为维度进行计算
+            result = "select season, " + paramName + " as `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` where year = '" + year + "' group by season";
+        }else if (year != -1 && season != -1 && month == -1 && day == -1) {  //以1季度的3个月为维度进行计算
+            result = "select month, " + paramName + " as `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` where year = '" + year + "' and season = '" + season + "' group by month";
+        }else if (year != -1 && season != -1 && month != -1 && day == -1){   //以一个月的30天为维度计算
+            result = "select day, " + paramName + " as `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` where year = '" + year + "' and season = '" + season + "' and month = " + month + "' group by day";
+        }else if (year != -1 && season != -1 && month != -1 && day != -1){  //以1日为维度进行计算（意义不大）
+            result = "select day, `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` where year = '" + year + "' and season = '" + season + "' and month = '" + month + "' and day = '" + day + "'";
+        }else if (year == -1 && month == -1 && day == -1 && season == -1){  //以初始的n年为维度进行计算
             result = "select year, " + paramName + " as `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` group by year";
         }else{
-            result = "select * from `" + tablename + "` limit 1;";
+            result = "select * from `" + tablename + "` limit 1";
             System.out.println("输入year, month, day数据格式有误.");
         }
         System.out.println("The Drill SQL is :" + result);

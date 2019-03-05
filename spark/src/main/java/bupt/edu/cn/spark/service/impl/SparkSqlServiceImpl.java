@@ -34,15 +34,15 @@ public class SparkSqlServiceImpl implements Serializable {
                     String colName = nolimtSql.split(" ")[3].split("`")[1];
                     Dataset<Row> twoColumnData = spark.sql(nolimtSql);  //得到全部数据的一个表
                     twoColumnData = twoColumnData.withColumn(colName,twoColumnData.col(colName).cast("float"));
-                    Dataset<Row> dataDS = DatetableTrans.transDS(twoColumnData, i); //解析出年月日
-                    sqlDF = twoColumnData.join(dataDS,twoColumnData.col(twoColumnData.columns()[i]).equalTo(dataDS.col("stringTime")),"left_outer").drop("stringTime");//将年月日3列加入Dataset中
+                    Dataset<Row> dataDS = DatetableTrans.transDS(twoColumnData, i); //解析出年月日和季度
+                    sqlDF = twoColumnData.join(dataDS,twoColumnData.col(twoColumnData.columns()[i]).equalTo(dataDS.col("stringTime")),"left_outer").drop("stringTime");//将年月季度日4列加入Dataset中
                     sqlDF = sqlDF.drop(sqlDF.columns()[i]);     //删除掉默认的2017-1-1的列
 //                    String pathName = "/Users/user1/Desktop/";
-                    String pathName = "/home/fatbird/workspace/";
-                    String saveName = pathName + tableName + "-" + colName;
-                    System.out.println("Save path is :" + saveName);
-                    sqlDF.write().option("header", "true").csv(saveName);
-                    combineCSV(tableName + "-" + colName,pathName);
+//                    String pathName = "/home/fatbird/workspace/";
+//                    String saveName = pathName + tableName + "-" + colName;
+//                    System.out.println("Save path is :" + saveName);
+//                    sqlDF.write().option("header", "true").csv(saveName);
+//                    combineCSV(tableName + "-" + colName,pathName);
                     switch (colName.split("_")[1]){
                         case "max":
                             sqlDF = sqlDF.groupBy("year").max(colName);

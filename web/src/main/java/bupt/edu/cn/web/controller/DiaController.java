@@ -229,7 +229,7 @@ public class DiaController {
             listJson = queryService.getQueryData(Arrays.asList(dimArr), funArr, meaArr, fileUrl, tableName, sql, routeStr);
         }else{
 //            进入了上卷下钻的操作
-            sql = sqlGenerate.getWithScrollDrill(drillFileNameJudge,meas.split("\\."),-1,-1,-1);
+            sql = sqlGenerate.getWithScrollDrill(drillFileNameJudge,meas.split("\\."),-1,-1,-1,-1);
             listJson = queryService.getQueryDataWithDate(drillpath + drillFileNameJudge,drillFileNameJudge,sql);
         }
 
@@ -501,13 +501,13 @@ public class DiaController {
         return result.toString();
     }
     @RequestMapping("/DataScrollDrill")
-    public String DataScrollDrill(String userId, String dataSourceId, String dim, String mea, int year, int month, int day, int chartType,
+    public String DataScrollDrill(String userId, String dataSourceId, String dim, String mea, int year, int month, int day, int season, int chartType,
                                   String tableName,HttpServletResponse response,HttpServletRequest request){
 
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
         System.out.println("----------------DataScrollDrill-----------");
-        System.out.println("year = " + year + ", month = " + month + ", day = " + day);
+        System.out.println("year = " + year + ", season = " + season + ", month = " + month + ", day = " + day);
         JSONObject result = new JSONObject();
 
         String[] measArr = mea.split("\\.");
@@ -526,7 +526,7 @@ public class DiaController {
         String sql = "";
         String pathurl = "/home/fatbird/workspace/";
 //        String pathurl = "/Users/user1/Desktop/";
-        sql = sqlGenerate.getWithScrollDrill(fileName, measArr, year, month, day);
+        sql = sqlGenerate.getWithScrollDrill(fileName, measArr, year, season, month, day);
         System.out.println("The SQL is : " + sql);
         List<Map> listJson = queryService.getQueryDataWithDate(pathurl+fileName,fileName,sql);
 

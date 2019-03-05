@@ -33,6 +33,14 @@ public class DatetableTrans {
                         dt.setStringTime(time);
                         dt.setYear(formatTime[0]);
                         dt.setMonth(formatTime[1]);
+                        if (formatTime[1] <= 3)
+                            dt.setSeason(1);
+                        else if (formatTime[1] <= 6)
+                            dt.setSeason(2);
+                        else if (formatTime[1] <= 9)
+                            dt.setSeason(3);
+                        else
+                            dt.setSeason(4);
                         dt.setDay(formatTime[2]);
                         dts.add(dt);
                         return dts.iterator();      //返回最终格式化数据

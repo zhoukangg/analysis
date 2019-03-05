@@ -9,6 +9,8 @@ public class Datetable extends AbstractSchema{
 
     private Integer day;
 
+    private Integer season;
+
     private String stringTime;
 
     Datetable(){
@@ -48,5 +50,13 @@ public class Datetable extends AbstractSchema{
 
     public void setStringTime(String stringTime) {
         this.stringTime = stringTime;
+    }
+
+    public Integer getSeason() {
+        return season;
+    }
+
+    public void setSeason(Integer season) {
+        this.season = season;
     }
 }
