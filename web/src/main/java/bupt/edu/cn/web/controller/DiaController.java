@@ -542,6 +542,9 @@ public class DiaController {
                 break;
             case "day":
                 colNameInCN = "日";
+                break;
+            case "season":
+                colNameInCN = "季度";
             default:
                 break;
         }

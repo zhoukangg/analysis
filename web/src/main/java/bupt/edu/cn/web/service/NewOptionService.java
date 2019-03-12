@@ -41,6 +41,8 @@ public class NewOptionService {
                     columnName = "month";
                 else if (listJson.get(0).containsKey("day"))
                     columnName = "day";
+                else if (listJson.get(0).containsKey("season"))
+                    columnName = "season";
                 option.getJSONObject("xAxis").put("name",dims[0]+"_"+columnName);
                 for (int i = 0;i<listJson.size();i++)
                     xAxisData.add(listJson.get(i).get(columnName).toString());

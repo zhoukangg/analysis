@@ -292,7 +292,7 @@ public class SQLGenerate {
         }else if (year != -1 && season != -1 && month == -1 && day == -1) {  //以1季度的3个月为维度进行计算
             result = "select month, " + paramName + " as `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` where year = '" + year + "' and season = '" + season + "' group by month";
         }else if (year != -1 && season != -1 && month != -1 && day == -1){   //以一个月的30天为维度计算
-            result = "select day, " + paramName + " as `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` where year = '" + year + "' and season = '" + season + "' and month = " + month + "' group by day";
+            result = "select day, " + paramName + " as `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` where year = '" + year + "' and season = '" + season + "' and month = '" + month + "' group by day";
         }else if (year != -1 && season != -1 && month != -1 && day != -1){  //以1日为维度进行计算（意义不大）
             result = "select day, `" + measArr[1] + "_" + measArr[0] + "` from `" + tablename + "` where year = '" + year + "' and season = '" + season + "' and month = '" + month + "' and day = '" + day + "'";
         }else if (year == -1 && month == -1 && day == -1 && season == -1){  //以初始的n年为维度进行计算
