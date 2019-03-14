@@ -304,4 +304,25 @@ public class SQLGenerate {
         System.out.println("The Drill SQL is :" + result);
         return result;
     }
+
+    public String buildWithDrillDims(String tablename, String[] drilldims, String[] meas){
+        String result = "select ";
+
+        for (int j = 0;j < drilldims.length;j++){
+            result += "max(`" + drilldims[j] +"`) as `max_" + drilldims + "`,";
+            result += "min(`" + drilldims[j] +"`) as `min_" + drilldims + "`,";
+            result += "sum(`" + drilldims[j] +"`) as `sum" + drilldims + "`,";
+            result += "avg(`" + drilldims[j] +"`) as `avg" + drilldims + "`,";
+            result += "count(`" + drilldims[j] +"`) as `count_" + drilldims + "`,";
+        }
+
+        String finalmea = meas[meas.length - 1];
+        for (int i = 0;i < meas.length - 1;i++){
+            result += "`" + meas[i] + "`,";
+        }
+        result += "`" + finalmea + "` ";
+        result += "from " + tablename + " group by " + finalmea;
+        System.out.println("Drill建模的SQL是:" + result);
+        return result;
+    }
 }

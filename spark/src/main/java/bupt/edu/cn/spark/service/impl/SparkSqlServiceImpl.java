@@ -2,6 +2,7 @@ package bupt.edu.cn.spark.service.impl;
 
 import bupt.edu.cn.spark.common.SpSession;
 import org.apache.spark.sql.*;
+import org.apache.spark.sql.sources.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import scala.Serializable;
@@ -72,6 +73,20 @@ public class SparkSqlServiceImpl implements Serializable {
             System.out.println(e.toString());
             throw e;
         } finally {
+        }
+    }
+
+    public void DrillFileOutput(String fileUrl, String tableName, String sql, Long drillid){
+        SparkSession spark = spSession.getSparkSession();
+        String pathName = "/home/fatbird/workspace/";
+        Dataset<Row> df = spark.read().option("header",true).csv(fileUrl);
+        df.createOrReplaceTempView("`"+tableName+"`");//不能使用特殊符号如. 等等
+        Dataset<Row> sqlDF = spark.sql(sql);
+        try {
+            sqlDF.write().option("header", "true").csv("temp.csv");
+            combineCSV(tableName + "-" + drillid,pathName);
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 
