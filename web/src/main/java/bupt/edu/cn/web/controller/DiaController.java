@@ -214,8 +214,8 @@ public class DiaController {
         String sql;
 
         String drillFileNameJudge = "";
-//        String drillpath = "/Users/user1/Desktop/";
-        String drillpath = "/home/fatbird/workspace/";
+        String drillpath = "/Users/user1/Desktop/";
+//        String drillpath = "/home/fatbird/workspace/";
         if (meaArr.size() > 0 && funArr.size() > 0)
             drillFileNameJudge +=tableName + "-" + meaArr.get(0) + "_" + funArr.get(0);
         List<Map> listJson;
@@ -524,8 +524,8 @@ public class DiaController {
 
         SQLGenerate sqlGenerate = new SQLGenerate();
         String sql = "";
-        String pathurl = "/home/fatbird/workspace/";
-//        String pathurl = "/Users/user1/Desktop/";
+//        String pathurl = "/home/fatbird/workspace/";
+        String pathurl = "/Users/user1/Desktop/";
         sql = sqlGenerate.getWithScrollDrill(fileName, measArr, year, season, month, day);
         System.out.println("The SQL is : " + sql);
         List<Map> listJson = queryService.getQueryDataWithDate(pathurl+fileName,fileName,sql);
