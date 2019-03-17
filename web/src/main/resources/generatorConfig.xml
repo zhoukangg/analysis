@@ -47,8 +47,8 @@
         <!--<table tableName="data_source"></table>-->
         <!--<table tableName="dashboard"></table>-->
         <!--<table tableName="drill_dim"></table>-->
-        <!--<table tableName="story"></table>-->
-        <!--<table tableName="story_item"></table>-->
+        <table tableName="story"></table>
+        <table tableName="story_item"></table>
 
         <!-- <table schema="${jdbc.schema}" tableName="test"
        domainObjectName="Test" enableCountByExample="true"

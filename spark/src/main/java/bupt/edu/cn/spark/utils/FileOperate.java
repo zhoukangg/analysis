@@ -2,8 +2,10 @@ package bupt.edu.cn.spark.utils;
 
 import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
+import com.google.gson.stream.JsonWriter;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.nio.charset.Charset;
 
 public class FileOperate {
@@ -45,6 +47,10 @@ public class FileOperate {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    public void combineJSON(String newName, String filepath){
+
     }
 
     public static boolean deleteFile(String sPath) {

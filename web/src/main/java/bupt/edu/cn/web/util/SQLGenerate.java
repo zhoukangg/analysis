@@ -309,19 +309,21 @@ public class SQLGenerate {
         String result = "select ";
 
         for (int j = 0;j < drilldims.length;j++){
-            result += "max(`" + drilldims[j] +"`) as `max_" + drilldims + "`,";
-            result += "min(`" + drilldims[j] +"`) as `min_" + drilldims + "`,";
-            result += "sum(`" + drilldims[j] +"`) as `sum" + drilldims + "`,";
-            result += "avg(`" + drilldims[j] +"`) as `avg" + drilldims + "`,";
-            result += "count(`" + drilldims[j] +"`) as `count_" + drilldims + "`,";
+            result += "max(`" + drilldims[j] +"`) as `max_" + drilldims[j].trim() + "`,";
+            result += "min(`" + drilldims[j] +"`) as `min_" + drilldims[j].trim() + "`,";
+            result += "sum(`" + drilldims[j] +"`) as `sum_" + drilldims[j].trim() + "`,";
+            result += "avg(`" + drilldims[j] +"`) as `avg_" + drilldims[j].trim() + "`,";
+            result += "count(`" + drilldims[j] +"`) as `count_" + drilldims[j].trim() + "`,";
         }
 
         String finalmea = meas[meas.length - 1];
-        for (int i = 0;i < meas.length - 1;i++){
+        for (int i = 0;i < meas.length - 1;i++)
             result += "`" + meas[i] + "`,";
-        }
         result += "`" + finalmea + "` ";
-        result += "from " + tablename + " group by " + finalmea;
+        result += "from `" + tablename + "` group by ";
+        for (int i = 0;i <meas.length -1;i++)
+            result += "`" + meas[i] + "`,";
+        result += "`" + finalmea + "`";
         System.out.println("Drill建模的SQL是:" + result);
         return result;
     }

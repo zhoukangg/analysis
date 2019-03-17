@@ -21,7 +21,7 @@ public class SparkSqlServiceImpl implements Serializable {
     public Dataset<Row> sparkSQL(SparkSession spark,String fileUrl, String tableName, String sql){
         //NOTICE: QueryService函数使用该函数用来initDiagram
         //NOTICE: SparkSQLController函数使用该函数直接生成的数据
-//        String sqll = "select max(`数量`) as `数量_max`,`订购日期` from `中问` group by `订购日期` limit 10";
+//        String sqll = "select max(`数量`) as `数量_max`,`订购日期` from `中文` group by `订购日期` limit 10";
         try{
             Dataset<Row> df = spark.read().option("header",true).csv(fileUrl);
             df.createOrReplaceTempView("`"+tableName+"`");//不能使用特殊符号如. 等等
@@ -38,8 +38,8 @@ public class SparkSqlServiceImpl implements Serializable {
                     Dataset<Row> dataDS = DatetableTrans.transDS(twoColumnData, i); //解析出年月日和季度
                     sqlDF = twoColumnData.join(dataDS,twoColumnData.col(twoColumnData.columns()[i]).equalTo(dataDS.col("stringTime")),"left_outer").drop("stringTime");//将年月季度日4列加入Dataset中
                     sqlDF = sqlDF.drop(sqlDF.columns()[i]);     //删除掉默认的2017-1-1的列
-//                    String pathName = "/Users/user1/Desktop/";
-                    String pathName = "/home/fatbird/workspace/";
+                    String pathName = "/Users/user1/Desktop/";
+//                    String pathName = "/home/fatbird/workspace/";
                     String saveName = pathName + tableName + "-" + colName;
                     System.out.println("Save path is :" + saveName);
                     sqlDF.write().option("header", "true").csv(saveName);
@@ -76,15 +76,19 @@ public class SparkSqlServiceImpl implements Serializable {
         }
     }
 
-    public void DrillFileOutput(String fileUrl, String tableName, String sql, Long drillid){
+    public void DrillFileOutput(String fileUrl, String tableName, String sql){
         SparkSession spark = spSession.getSparkSession();
-        String pathName = "/home/fatbird/workspace/";
+//        String pathName = "/home/fatbird/workspace/";
+        String pathName = "/Users/user1/Desktop/";
         Dataset<Row> df = spark.read().option("header",true).csv(fileUrl);
         df.createOrReplaceTempView("`"+tableName+"`");//不能使用特殊符号如. 等等
         Dataset<Row> sqlDF = spark.sql(sql);
+        System.out.println("++++++");
+        sqlDF.show(10);
+        System.out.println("++++++");
         try {
-            sqlDF.write().option("header", "true").csv("temp.csv");
-            combineCSV(tableName + "-" + drillid,pathName);
+            sqlDF.write().option("header", "true").csv(pathName + "temp.csv");
+            combineCSV( "temp.csv",pathName);
         }catch (Exception e){
             e.printStackTrace();
         }
