@@ -76,10 +76,11 @@ public class SparkSqlServiceImpl implements Serializable {
         }
     }
 
-    public void DrillFileOutput(String fileUrl, String tableName, String sql){
+    public void DrillFileOutput(String fileUrl, String tableName, String sql, Long ID){
         SparkSession spark = spSession.getSparkSession();
 //        String pathName = "/home/fatbird/workspace/";
         String pathName = "/Users/user1/Desktop/";
+        String fileName = tableName + "-" + ID;
         Dataset<Row> df = spark.read().option("header",true).csv(fileUrl);
         df.createOrReplaceTempView("`"+tableName+"`");//不能使用特殊符号如. 等等
         Dataset<Row> sqlDF = spark.sql(sql);
@@ -87,12 +88,13 @@ public class SparkSqlServiceImpl implements Serializable {
         sqlDF.show(10);
         System.out.println("++++++");
         try {
-            sqlDF.write().option("header", "true").csv(pathName + "temp.csv");
-            combineCSV( "temp.csv",pathName);
+            sqlDF.write().option("header", "true").csv(pathName + fileName);
+            combineCSV( fileName,pathName);
         }catch (Exception e){
             e.printStackTrace();
         }
     }
+
 
     public void getTableInfo(String fileUrl){
         SparkSession spark = spSession.getSparkSession();

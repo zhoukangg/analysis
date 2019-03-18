@@ -11,6 +11,10 @@ public class DrillService {
     @Autowired
     bupt.edu.cn.web.repository.DrillDimRepository drillDimRepository;
 
+    public DrillDim getDrillDimByID(Integer id){
+        return drillDimRepository.findByIdEquals(id);
+    }
+
     public DrillDim createDrillDim(String tabname, String dims){
         DrillDim newDrillDim = new DrillDim();
         newDrillDim.setTablename(tabname);

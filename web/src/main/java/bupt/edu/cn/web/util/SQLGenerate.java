@@ -305,6 +305,31 @@ public class SQLGenerate {
         return result;
     }
 
+    public String buildWithDrillParams(String tablename,String[] params,String[] paramsValue, String mea){
+        String[] meaArr = mea.split(".");
+        String datacolName = meaArr[0] + "_" + meaArr[1];
+        String result = "select " + meaArr[0] + "(`" + datacolName + "`) as " + datacolName + ",";
+        String where = " where ";
+        int drillDeepth = paramsValue.length;
+        if (drillDeepth == params.length){      //所有维度都是有值的
+            result += ",`" + params[drillDeepth - 1] + "` from " + tablename;
+            for (int i = 0; i < params.length - 1; i++) {
+                where += "`" + params[i] + "`='" + paramsValue[i] + "' and ";
+            }
+            where += "`" + params[drillDeepth-1] + "`= `" + paramsValue[drillDeepth-1] + "`";
+        }else {                                 //比如：只查看中国广东有哪些市
+            for (int i = 0; i < paramsValue.length - 1; i++) {
+                where += "`" + params[i] + "`='" + paramsValue[i] + "' and ";
+            }
+            where += "`" + params[drillDeepth - 1] + "`='" + paramsValue[drillDeepth - 1] + "'";
+            where += " group by `" + params[drillDeepth] + "`";
+            result += ",`" + params[drillDeepth] + "` from " + tablename;
+        }
+        result += where;
+        System.out.println("Drill的语句是：" + result);
+        return result;
+    }
+
     public String buildWithDrillDims(String tablename, String[] drilldims, String[] meas){
         String result = "select ";
 
