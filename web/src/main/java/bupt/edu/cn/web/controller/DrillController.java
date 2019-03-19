@@ -96,7 +96,7 @@ public class DrillController {
         String pathurl = "/Users/user1/Desktop/";
         sql = sqlGenerate.getWithScrollDrill(fileName, measArr, year, season, month, day);
         System.out.println("The SQL is : " + sql);
-        List<Map> listJson = queryService.getQueryDataWithDate(pathurl+fileName,fileName,sql);
+        List<Map> listJson = queryService.getQueryDataWithDrillParams(pathurl+fileName,fileName,sql);
 
         //整理一下最后的list
         final String colName = StringUtil.getcolname(listJson);
@@ -162,13 +162,16 @@ public class DrillController {
         System.out.println("----------------drillData-----------");
         JSONObject result = new JSONObject();
         DrillDim drillDim = drillService.getDrillDimByID(drillID);
-        String tableName = drillDim.getTablename() + "-" + drillID;
+        String tableName = drillDim.getTablename() + "-" + drillID;     //获取真实的表名
         String[] dimsArr = drillDim.getDims().split(",");
         String[] paramsArr = paramsValue.split(",");
         SQLGenerate sqlGenerate = new SQLGenerate();
 
         String drillSQL = "";
         drillSQL = sqlGenerate.buildWithDrillParams(tableName,dimsArr,paramsArr,mea);
+        String pathurl = "/Users/user1/Desktop/";
+        List<Map> listJson = queryService.getQueryDataWithDrillParams(pathurl+tableName,tableName,drillSQL);
+
 
 
 

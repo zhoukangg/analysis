@@ -36,7 +36,17 @@ public class QueryService {
     @Autowired
     KylinQueryService kylinQueryService;
 
-    public synchronized List<Map> getQueryDataWithDate(String fileUrl, String tableName, String sql){
+//    public synchronized List<Map> getDrillDataWithParams(String fileUrl, String tableName, String sql){
+//        List<Map> listJson = new ArrayList<>();
+//        SparkSession spark = spSession.getSparkSession();
+//        try{
+//            Dataset<Row> ds = sparkSqlService.sparkSQL(spark,fileUrl + ".csv",tableName,sql);
+//
+//        }
+//
+//    }
+
+    public synchronized List<Map> getQueryDataWithDrillParams(String fileUrl, String tableName, String sql){
         List<Map> listJson = new ArrayList<>();
         SparkSession spark = spSession.getSparkSession();
         try{

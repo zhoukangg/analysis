@@ -230,7 +230,7 @@ public class DiaController {
         }else{
 //            进入了上卷下钻的操作
             sql = sqlGenerate.getWithScrollDrill(drillFileNameJudge,meas.split("\\."),-1,-1,-1,-1);
-            listJson = queryService.getQueryDataWithDate(drillpath + drillFileNameJudge,drillFileNameJudge,sql);
+            listJson = queryService.getQueryDataWithDrillParams(drillpath + drillFileNameJudge,drillFileNameJudge,sql);
         }
 
         Boolean drillflag = false;
