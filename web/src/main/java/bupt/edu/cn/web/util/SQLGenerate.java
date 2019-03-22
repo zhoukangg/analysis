@@ -307,26 +307,32 @@ public class SQLGenerate {
 
     public String buildWithDrillParams(String tablename,String[] params,String[] paramsValue, String[] meaArr){
         String datacolName = meaArr[0] + "_" + meaArr[1];
-        String result = "select " + meaArr[0] + "(`" + datacolName + "`) as " + datacolName + ",";
+        String result = "";
         String where = " where ";
         int drillDeepth = paramsValue.length;
+
         if (drillDeepth == params.length){      //所有维度都是有值的
-            result += ",`" + params[drillDeepth - 1] + "` from " + tablename;
+            result = "select `" + datacolName + "`, ";
+            System.out.println("111111111111");
+            result += "`" + params[drillDeepth - 1] + "` from `" + tablename + "`";
             for (int i = 0; i < params.length - 1; i++) {
                 where += "`" + params[i] + "`='" + paramsValue[i] + "' and ";
             }
-            where += "`" + params[drillDeepth-1] + "`= `" + paramsValue[drillDeepth-1] + "`";
+            where += "`" + params[drillDeepth-1] + "`= '" + paramsValue[drillDeepth-1] + "'";
         }else {                                 //比如：只查看中国广东有哪些市
-            if (paramsValue.length == 0){       //当paramValue为空时，直接按照维度最大的列group by
+            result = "select " + meaArr[0] + "(`" + datacolName + "`) as `" + datacolName + "`,";
+            if (paramsValue.length == 1 && paramsValue[0].equals("")){       //当paramValue为空时，直接按照维度最大的列group by
+                System.out.println("2222222222");
                 result += "`" + params[0] + "` from `" + tablename + "` group by `" + params[0] + "`";
                 where = "";
             }else {
+                System.out.println("3333333333");
                 for (int i = 0; i < paramsValue.length - 1; i++) {
                     where += "`" + params[i] + "`='" + paramsValue[i] + "' and ";
                 }
                 where += "`" + params[drillDeepth - 1] + "`='" + paramsValue[drillDeepth - 1] + "'";
                 where += " group by `" + params[drillDeepth] + "`";
-                result += ",`" + params[drillDeepth] + "` from " + tablename;
+                result += "`" + params[drillDeepth] + "` from `" + tablename + "`";
             }
         }
         result += where;

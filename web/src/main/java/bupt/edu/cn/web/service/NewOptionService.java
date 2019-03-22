@@ -1,11 +1,14 @@
 package bupt.edu.cn.web.service;
 
+import bupt.edu.cn.web.pojo.Diagram;
 import com.alibaba.fastjson.JSON;
+import org.json.JSONArray;
 import org.springframework.stereotype.Service;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -121,17 +124,45 @@ public class NewOptionService {
         return option;
     }
 
-    public JSONObject createOptionOnMap(List<Map> listJson){
+    public JSONObject createOptionOnMap(List<Map> listJson, String[] measArr, String deepestParam){
 //        最后的data属性存储数据
-        String mapJson = "{'backgroundColor':'#FFFFFF','title':{'text':'全国地图','subtext':'纯属虚构','x':'center'}," +
+        String meaName = measArr[0] + "_" + measArr[1];
+        String mapJson = "{'backgroundColor':'#FFFFFF','title':{'text':'地图','x':'center'}," +
                 "'tooltip':{'trigger':'item'},'visualMap':{'show':false,'x':'left','y':'bottom','splitList':" +
                 "[{'start':500,'end':600},{'start':400,'end':500},{'start':300,'end':400},{'start':200,'end':300},{'start':100,'end':200},{'start':0,'end':100}]," +
-                "'color':[]},'series':[{'name':'随机数据','type':'map','mapType':'china','roam':true,'label':{'normal':{'show':false}," +
+                "'color':[]},'series':[{'name':'','type':'map','mapType':'china','roam':true,'label':{'normal':{'show':false}," +
                 "'emphasis':{'show':false}},'data':'data'}]}";
         JSONObject result = new JSONObject(mapJson);
-
-
-
+        JSONArray data = new JSONArray();
+        for (int i = 0; i < listJson.size(); i++) {
+            JSONObject tempdata = new JSONObject();
+            Double paramvalue = 0.0;
+            String param = "";
+            for (Object key : listJson.get(i).keySet()){
+                if (key.toString().contains("_")){
+                    paramvalue = Double.parseDouble(listJson.get(i).get(key).toString());
+                }else {
+                    param = String.valueOf(listJson.get(i).get(key));
+                }
+            }
+            tempdata.put("name",param);
+            tempdata.put("value",paramvalue);
+            data.put(tempdata);
+        }
+        System.out.println("地图数据格式为:" + data);
+        result.getJSONArray("series").getJSONObject(0).put("name",meaName);
+        result.getJSONArray("series").getJSONObject(0).put("mapType",deepestParam);
+        result.getJSONArray("series").getJSONObject(0).put("data",data);
         return result;
+    }
+
+    public JSONObject diagramINresult (JSONObject re, Diagram diagram){
+
+        re.put("diagramId",diagram.getId());
+        re.put("diagramName",diagram.getName());
+        re.put("classificaion",diagram.getClassification());
+        re.put("userId",diagram.getUserId());
+        re.put("dataSourceId",diagram.getDataSourceId());
+        return re;
     }
 }

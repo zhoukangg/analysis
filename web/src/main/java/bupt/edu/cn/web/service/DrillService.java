@@ -11,7 +11,7 @@ public class DrillService {
     @Autowired
     bupt.edu.cn.web.repository.DrillDimRepository drillDimRepository;
 
-    public DrillDim getDrillDimByID(Integer id){
+    public DrillDim getDrillDimByID(Long id){
         return drillDimRepository.findByIdEquals(id);
     }
 

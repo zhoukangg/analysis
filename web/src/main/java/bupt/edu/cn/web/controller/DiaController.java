@@ -374,11 +374,7 @@ public class DiaController {
             op.put("rows",rowJson);
             re.put("option",op);
         }
-        re.put("diagramId",diagram.getId());
-        re.put("diagramName",diagram.getName());
-        re.put("classificaion",diagram.getClassification());
-        re.put("userId",diagram.getUserId());
-        re.put("dataSourceId",diagram.getDataSourceId());
+        re = newoptionService.diagramINresult(re,diagram);
         re.put("drillflag",drillflag);
 
         result.put("result",WebConstant.QUERY_SUCCESS.isResult());

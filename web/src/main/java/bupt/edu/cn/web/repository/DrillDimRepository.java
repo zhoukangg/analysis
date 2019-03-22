@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface DrillDimRepository extends JpaRepository<DrillDim,Integer> {
-    DrillDim findByIdEquals(Integer id);
+    DrillDim findByIdEquals(Long id);
     List<DrillDim> findByTablenameEquals(String tabName);
 
 }
