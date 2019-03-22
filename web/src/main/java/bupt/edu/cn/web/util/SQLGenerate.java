@@ -305,8 +305,7 @@ public class SQLGenerate {
         return result;
     }
 
-    public String buildWithDrillParams(String tablename,String[] params,String[] paramsValue, String mea){
-        String[] meaArr = mea.split(".");
+    public String buildWithDrillParams(String tablename,String[] params,String[] paramsValue, String[] meaArr){
         String datacolName = meaArr[0] + "_" + meaArr[1];
         String result = "select " + meaArr[0] + "(`" + datacolName + "`) as " + datacolName + ",";
         String where = " where ";
@@ -318,12 +317,17 @@ public class SQLGenerate {
             }
             where += "`" + params[drillDeepth-1] + "`= `" + paramsValue[drillDeepth-1] + "`";
         }else {                                 //比如：只查看中国广东有哪些市
-            for (int i = 0; i < paramsValue.length - 1; i++) {
-                where += "`" + params[i] + "`='" + paramsValue[i] + "' and ";
+            if (paramsValue.length == 0){       //当paramValue为空时，直接按照维度最大的列group by
+                result += "`" + params[0] + "` from `" + tablename + "` group by `" + params[0] + "`";
+                where = "";
+            }else {
+                for (int i = 0; i < paramsValue.length - 1; i++) {
+                    where += "`" + params[i] + "`='" + paramsValue[i] + "' and ";
+                }
+                where += "`" + params[drillDeepth - 1] + "`='" + paramsValue[drillDeepth - 1] + "'";
+                where += " group by `" + params[drillDeepth] + "`";
+                result += ",`" + params[drillDeepth] + "` from " + tablename;
             }
-            where += "`" + params[drillDeepth - 1] + "`='" + paramsValue[drillDeepth - 1] + "'";
-            where += " group by `" + params[drillDeepth] + "`";
-            result += ",`" + params[drillDeepth] + "` from " + tablename;
         }
         result += where;
         System.out.println("Drill的语句是：" + result);

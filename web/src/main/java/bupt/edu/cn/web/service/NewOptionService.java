@@ -120,4 +120,18 @@ public class NewOptionService {
         }
         return option;
     }
+
+    public JSONObject createOptionOnMap(List<Map> listJson){
+//        最后的data属性存储数据
+        String mapJson = "{'backgroundColor':'#FFFFFF','title':{'text':'全国地图','subtext':'纯属虚构','x':'center'}," +
+                "'tooltip':{'trigger':'item'},'visualMap':{'show':false,'x':'left','y':'bottom','splitList':" +
+                "[{'start':500,'end':600},{'start':400,'end':500},{'start':300,'end':400},{'start':200,'end':300},{'start':100,'end':200},{'start':0,'end':100}]," +
+                "'color':[]},'series':[{'name':'随机数据','type':'map','mapType':'china','roam':true,'label':{'normal':{'show':false}," +
+                "'emphasis':{'show':false}},'data':'data'}]}";
+        JSONObject result = new JSONObject(mapJson);
+
+
+
+        return result;
+    }
 }

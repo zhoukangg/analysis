@@ -155,7 +155,7 @@ public class DrillController {
     }
 
     @RequestMapping("drillData")
-    public String drillData(String userId, String dataSourceId, Integer drillID, String paramsValue, String mea,
+    public String drillData(String userId, String dataSourceId, Integer drillID, String paramsValue, String mea, String dataType,
                             HttpServletResponse response, HttpServletRequest request){
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
@@ -165,15 +165,60 @@ public class DrillController {
         String tableName = drillDim.getTablename() + "-" + drillID;     //获取真实的表名
         String[] dimsArr = drillDim.getDims().split(",");
         String[] paramsArr = paramsValue.split(",");
+        String[] measArr = mea.split(".");
         SQLGenerate sqlGenerate = new SQLGenerate();
 
         String drillSQL = "";
-        drillSQL = sqlGenerate.buildWithDrillParams(tableName,dimsArr,paramsArr,mea);
+        drillSQL = sqlGenerate.buildWithDrillParams(tableName,dimsArr,paramsArr,measArr);
         String pathurl = "/Users/user1/Desktop/";
         List<Map> listJson = queryService.getQueryDataWithDrillParams(pathurl+tableName,tableName,drillSQL);
 
+        //为了普适性的option的生成，包括时间和其他，地图类的option单独生成
+        JSONObject re = new JSONObject();
+        Diagram diagram = new Diagram();
+        List<String> mea_fun = new ArrayList<>();
+        mea_fun.add(measArr[1] + "_" + measArr[0]);
 
+        if (dataType.equals("map")){
 
+        }else if(dataType.equals("date")){      //针对时间类的数据进行分析
+            //整理一下最后的list
+            final String colName = StringUtil.getcolname(listJson);
+            String colNameInCN = "";
+            switch (colName){
+                case "year":
+                    colNameInCN = "年";
+                    break;
+                case "month":
+                    colNameInCN = "月";
+                    break;
+                case "day":
+                    colNameInCN = "日";
+                    break;
+                case "season":
+                    colNameInCN = "季度";
+                default:
+                    break;
+            }
+            Collections.sort(listJson, new Comparator<Map>() {  //給整个listJson进行排序
+                public int compare(Map o1, Map o2) {
+                    Integer date1 = Integer.valueOf(o1.get(colName).toString());
+                    Integer date2 = Integer.valueOf(o2.get(colName).toString());
+                    return date1.compareTo(date2);
+                }
+            });
+            for (Map tempmap : listJson){
+                tempmap.put(colName,tempmap.get(colName).toString() + colNameInCN);
+            }
+            //整理listJson结束
+            // TODO: 2019/3/22 需要根据实际情况变更dimArr
+//            JSONObject jo = newoptionService.newcreateOptionSpark(dimArr,mea_fun,listJson);
+//            diagram = diagramService.createDiagram("-1","unset",jo.toString(),"2",userId,dataSourceId);
+//            String str_newDiagram = new chartsBase().transDiagram(2,chartType,diagram.getChart());
+//            diagramService.updateDiagram(diagram.getId() + "", diagram.getName(), str_newDiagram, "5", userId + "");
+        }else{
+
+        }
 
         return result.toString();
     }
