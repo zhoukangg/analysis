@@ -40,34 +40,34 @@ public class DrillController {
     @Autowired
     bupt.edu.cn.spark.service.impl.SparkSqlServiceImpl sparkSqlService;
 
-    @RequestMapping("/drillDimSet")
-    public String drilloptionset(String tablename, String drilldims, String fileUrl){
-        System.out.println("开始设置一个上卷下钻的维度值");
-        JSONObject result = new JSONObject();
-        DrillDim drillDim = drillService.createDrillDim(tablename,drilldims);
-        Map newmap = dataTableInfoService.getCsvDim(fileUrl);
-        Object[] objs = (Object[]) newmap.get("meas");
-        String[] fileMeas = new String[objs.length];
-        for (int i = 0;i <objs.length;i++)
-            fileMeas[i] = objs[i].toString();
-        //        获取该表的所有维度，并对其进行建模计算
-        String[] drilldimArray = drilldims.split(",");
-
-        String sql = "";
-        SQLGenerate sqlGenerate = new SQLGenerate();
-        sql = sqlGenerate.buildWithDrillDims(tablename,fileMeas,drilldimArray);
-
-        System.out.println("开始生成模型");
-        sparkSqlService.DrillFileOutput(fileUrl, tablename, sql, drillDim.getId());
-        System.out.println("模型创建完成");
-
-        result.put("tablename",tablename);
-        result.put("drilldims",drilldimArray);
-        result.put("meas",fileMeas);
-        result.put("drillID",drillDim.getId());
-
-        return result.toString();
-    }
+//    @RequestMapping("/drillDimSet")
+//    public String drilloptionset(String tablename, String drilldims, String fileUrl){
+//        System.out.println("开始设置一个上卷下钻的维度值");
+//        JSONObject result = new JSONObject();
+//        DrillDim drillDim = drillService.createDrillDim(tablename,drilldims);
+//        Map newmap = dataTableInfoService.getCsvDim(fileUrl);
+//        Object[] objs = (Object[]) newmap.get("meas");
+//        String[] fileMeas = new String[objs.length];
+//        for (int i = 0;i <objs.length;i++)
+//            fileMeas[i] = objs[i].toString();
+//        //        获取该表的所有维度，并对其进行建模计算
+//        String[] drilldimArray = drilldims.split(",");
+//
+//        String sql = "";
+//        SQLGenerate sqlGenerate = new SQLGenerate();
+//        sql = sqlGenerate.buildWithDrillDims(tablename,fileMeas,drilldimArray);
+//
+//        System.out.println("开始生成模型");
+//        sparkSqlService.DrillFileOutput(fileUrl, tablename, sql, drillDim.getId());
+//        System.out.println("模型创建完成");
+//
+//        result.put("tablename",tablename);
+//        result.put("drilldims",drilldimArray);
+//        result.put("meas",fileMeas);
+//        result.put("drillID",drillDim.getId());
+//
+//        return result.toString();
+//    }
 
     @RequestMapping("/DataScrollDrill")
     public String DataScrollDrill(String userId, String dataSourceId, String dim, String mea, int year, int month, int day, int season, int chartType,
@@ -152,14 +152,14 @@ public class DrillController {
     }
 
     @RequestMapping("drillData")
-    public String drillData(String userId, String dataSourceId, Long drillID, String paramsValue, String mea, String dataType,
-                            HttpServletResponse response, HttpServletRequest request){
+    public String drillData(String userId, String dataSourceId, String paramsName, String tableName, String paramsValue, String mea, String dataType,
+                            int chartType, HttpServletResponse response, HttpServletRequest request){
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
         System.out.println("----------------drillData-----------");
         JSONObject result = new JSONObject();
-        DrillDim drillDim = drillService.getDrillDimByID(drillID);
-        String tableName = drillDim.getTablename() + "-" + drillID;     //获取真实的表名
+        DrillDim drillDim = drillService.getByDimsAndTablename(paramsName,tableName);
+        tableName += "-" + drillDim.getId();     //获取真实的表名
         String[] dimsArr = drillDim.getDims().split(",");
         String[] paramsArr = paramsValue.split(",");
         String[] measArr = mea.split("\\.");
@@ -181,6 +181,7 @@ public class DrillController {
                 deepestParamValue = paramsArr[paramsArr.length - 1];
             }
             jo = newoptionService.createOptionOnMap(listJson,measArr,deepestParamValue);
+            diagram = diagramService.createDiagram("-1","unset",jo.toString(),"2",userId,dataSourceId);
         }else{
             System.out.println("普适性的数据上卷下钻分析");
             List<String> mea_fun = new ArrayList<>();
@@ -198,10 +199,13 @@ public class DrillController {
             System.out.println("深度的列名为：" + deepestParamName);
             drillDimArr[0] = deepestParamName;
             jo = newoptionService.newcreateOptionSpark(drillDimArr,mea_fun,listJson);
-            System.out.println(jo);
+            //  针对普适性的图可以切换图的类型进行换图
+            diagram = diagramService.createDiagram("-1","unset",jo.toString(),"5",userId,dataSourceId);
+            String str_newDiagram = new chartsBase().transDiagram(2,chartType,diagram.getChart());
+            diagramService.updateDiagram(diagram.getId() + "", diagram.getName(), str_newDiagram, "5", userId + "");
+            jo = new JSONObject(str_newDiagram);
         }
         re.put("option",jo);
-        diagram = diagramService.createDiagram("-1","unset",jo.toString(),"2",userId,dataSourceId);
         re = newoptionService.diagramINresult(re,diagram);
         re.put("drillflag",true);
         result.put("datum",re);

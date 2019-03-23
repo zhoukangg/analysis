@@ -10,6 +10,9 @@ public class DrillService {
 
     @Autowired
     bupt.edu.cn.web.repository.DrillDimRepository drillDimRepository;
+    public DrillDim getByDimsAndTablename(String dims,String tablename){
+        return drillDimRepository.findByDimsEqualsAndTablenameEquals(dims,tablename);
+    }
 
     public DrillDim getDrillDimByID(Long id){
         return drillDimRepository.findByIdEquals(id);

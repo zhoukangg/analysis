@@ -2,6 +2,7 @@ package bupt.edu.cn.web.controller;
 import bupt.edu.cn.spark.utils.FileOperate;
 import bupt.edu.cn.web.common.WebConstant;
 import bupt.edu.cn.web.pojo.Diagram;
+import bupt.edu.cn.web.pojo.DrillDim;
 import bupt.edu.cn.web.repository.DiagramRepository;
 import bupt.edu.cn.web.service.DiagramService;
 import bupt.edu.cn.web.service.NewOptionService;
@@ -24,10 +25,19 @@ public class DiaController {
 
     @Autowired
     DiagramRepository diagramRepository;
-    
+
+    @Autowired
+    bupt.edu.cn.web.service.DataTableInfoService dataTableInfoService;
+
     @Autowired
     DiagramService diagramService;
-    
+
+    @Autowired
+    bupt.edu.cn.web.service.DrillService drillService;
+
+    @Autowired
+    bupt.edu.cn.spark.service.impl.SparkSqlServiceImpl sparkSqlService;
+
     @Autowired
     NewOptionService newoptionService;
 
@@ -37,110 +47,110 @@ public class DiaController {
     @Autowired
     QueryRoute queryRoute;
 
-    @RequestMapping("/queryData")
-    public String queryData(String userId, String dataSourceId, String dims, String meas, String fileUrl, String tableName, String fileType,String limit){
-        if (System.getProperty("os.name").split(" ")[0] == "Windows")
-            if (System.getProperty("os.name").split(" ")[0].equals("Windows"))  //为了FatBird电脑的配置 System.setProperty("hadoop.home.dir", "e:/hadoop");
-                System.out.println("-----------进入方法 /queryData----------");
-        System.out.println("-----------参数1：dims = " + dims);
-        System.out.println("-----------参数2：meas = " + meas);
-        System.out.println("-----------参数3：fileUrl = " + fileUrl);
-        System.out.println("-----------参数4：tableName = " + tableName);
-        System.out.println("-----------参数5：fileType = " + fileType);
-        String[] dimArr = {};
-        String[] funAndMeaArr;
-        List<String> meaArr = new ArrayList<>();
-        List<String> funArr = new ArrayList<>();
-
-        if (dims.equals("") && meas.equals(""))       //两个都是空的时候直接返回空值
-            return "";
-
-        JSONObject result = new JSONObject();
-
-        if(dims != null && !dims.equals("") && !dims.equals(" ")){
-            dims = StringUtil.custom_trim(dims,',');
-            dimArr = dims.split(",");
-            if (fileUrl.startsWith("select ")){
-                for (int i = 0;i<dimArr.length;i++) {
-                    if (dimArr[i].split("\\.").length == 3){
-                        dimArr[i] = dimArr[i].split("\\.")[1]+"."+dimArr[i].split("\\.")[2];
-                    }else if (dimArr[i].split("\\.").length == 2){ //GD_GENERAL_INFO_W.EXAMINE_DATE_DAY
-                        dimArr[i] = dimArr[i];
-                    }
-                }
-            }
-        }
-        if(meas != null && !meas.equals("") && !meas.equals(" ")){
-            meas = StringUtil.custom_trim(meas,',');
-            System.out.println("--------去,后：meas = " + meas);
-            funAndMeaArr = meas.split(",");
-            for (String item : funAndMeaArr) {
-                System.out.println(item);
-                item = StringUtil.custom_trim(item,'.'); //去除首尾'.'
-                System.out.println("--------去.后：item = " + item);
-                String[] itemSplit = item.split("\\.");
-                funArr.add(itemSplit[0]);
-                if (itemSplit.length == 4){ //操作名.数据库名.表名.维度
-                    meaArr.add(itemSplit[2]+"."+itemSplit[3]);
-                }else if (itemSplit.length == 2){ //操作名.维度
-                    meaArr.add(itemSplit[1]);
-                }else if (itemSplit.length == 3){ //操作名.表名.维度
-                    meaArr.add(itemSplit[1]+"."+itemSplit[2]);
-                }
-            }
-        }
-
-        //路由
-        String routeStr = queryRoute.route(Arrays.asList(dimArr), funArr, meaArr,tableName,fileUrl);
-        if (routeStr.equals("hive")){ //hive 查询出来列名都变成小写了
-            for (int i = 0;i<dimArr.length;i++){
-                dimArr[i] = dimArr[i].toLowerCase();
-            }
-            for (int i = 0;i<meaArr.size();i++){
-                meaArr.set(i,meaArr.get(i).toLowerCase());
-            }
-        }
-        SQLGenerate sqlGenerate = new SQLGenerate();
-        //获取SQL
-        String sql;
-        if (meaArr.size() == 1 && dimArr.length == 0)     //兼容指标卡的特殊Option
-            sql =sqlGenerate.getWithOnemeas(funArr,meaArr,tableName,fileType,fileUrl,routeStr);
-        else
-            sql = sqlGenerate.getWithGroup(dimArr, funArr, meaArr,tableName,fileType,fileUrl,routeStr,limit);
-        System.out.println("The SQL is: " + sql);
-        List<Map> listJson = queryService.getQueryData(Arrays.asList(dimArr), funArr, meaArr, fileUrl, tableName, sql, routeStr);
-
-//        List<String> mea_fun = new ArrayList<>();
-//        for (int i = 0;i<meaArr.size();i++){
-//            mea_fun.add(meaArr.get(i)+"_"+funArr.get(i));
-//        }
-//        JSONObject jo = newoptionService.newcreateOptionSpark(dimArr,mea_fun,listJson);
+//    @RequestMapping("/queryData")
+//    public String queryData(String userId, String dataSourceId, String dims, String meas, String fileUrl, String tableName, String fileType,String limit){
+//        if (System.getProperty("os.name").split(" ")[0] == "Windows")
+//            if (System.getProperty("os.name").split(" ")[0].equals("Windows"))  //为了FatBird电脑的配置 System.setProperty("hadoop.home.dir", "e:/hadoop");
+//                System.out.println("-----------进入方法 /queryData----------");
+//        System.out.println("-----------参数1：dims = " + dims);
+//        System.out.println("-----------参数2：meas = " + meas);
+//        System.out.println("-----------参数3：fileUrl = " + fileUrl);
+//        System.out.println("-----------参数4：tableName = " + tableName);
+//        System.out.println("-----------参数5：fileType = " + fileType);
+//        String[] dimArr = {};
+//        String[] funAndMeaArr;
+//        List<String> meaArr = new ArrayList<>();
+//        List<String> funArr = new ArrayList<>();
 //
-//        String clas ="2";
-//        if (mea_fun.size()>1){
-//            clas = "4";
+//        if (dims.equals("") && meas.equals(""))       //两个都是空的时候直接返回空值
+//            return "";
+//
+//        JSONObject result = new JSONObject();
+//
+//        if(dims != null && !dims.equals("") && !dims.equals(" ")){
+//            dims = StringUtil.custom_trim(dims,',');
+//            dimArr = dims.split(",");
+//            if (fileUrl.startsWith("select ")){
+//                for (int i = 0;i<dimArr.length;i++) {
+//                    if (dimArr[i].split("\\.").length == 3){
+//                        dimArr[i] = dimArr[i].split("\\.")[1]+"."+dimArr[i].split("\\.")[2];
+//                    }else if (dimArr[i].split("\\.").length == 2){ //GD_GENERAL_INFO_W.EXAMINE_DATE_DAY
+//                        dimArr[i] = dimArr[i];
+//                    }
+//                }
+//            }
 //        }
-//        Diagram diagram = diagramService.createDiagram("-1","unset",jo.toString(),clas,userId,dataSourceId);
-//        JSONObject re = new JSONObject();
-//        re.put("option",jo);
-//        re.put("diagramId",diagram.getId());
-//        re.put("diagramName",diagram.getName());
-//        re.put("classificaion",diagram.getClassification());
-//        re.put("userId",diagram.getUserId());
-//        re.put("dataSourceId",diagram.getDataSourceId());
-
-        result.put("result",WebConstant.QUERY_SUCCESS.isResult());
-        result.put("reason",WebConstant.QUERY_SUCCESS.getReason());
-        result.put("datum",listJson);
-
-        return result.toString();
-    }
+//        if(meas != null && !meas.equals("") && !meas.equals(" ")){
+//            meas = StringUtil.custom_trim(meas,',');
+//            System.out.println("--------去,后：meas = " + meas);
+//            funAndMeaArr = meas.split(",");
+//            for (String item : funAndMeaArr) {
+//                System.out.println(item);
+//                item = StringUtil.custom_trim(item,'.'); //去除首尾'.'
+//                System.out.println("--------去.后：item = " + item);
+//                String[] itemSplit = item.split("\\.");
+//                funArr.add(itemSplit[0]);
+//                if (itemSplit.length == 4){ //操作名.数据库名.表名.维度
+//                    meaArr.add(itemSplit[2]+"."+itemSplit[3]);
+//                }else if (itemSplit.length == 2){ //操作名.维度
+//                    meaArr.add(itemSplit[1]);
+//                }else if (itemSplit.length == 3){ //操作名.表名.维度
+//                    meaArr.add(itemSplit[1]+"."+itemSplit[2]);
+//                }
+//            }
+//        }
+//
+//        //路由
+//        String routeStr = queryRoute.route(Arrays.asList(dimArr), funArr, meaArr,tableName,fileUrl);
+//        if (routeStr.equals("hive")){ //hive 查询出来列名都变成小写了
+//            for (int i = 0;i<dimArr.length;i++){
+//                dimArr[i] = dimArr[i].toLowerCase();
+//            }
+//            for (int i = 0;i<meaArr.size();i++){
+//                meaArr.set(i,meaArr.get(i).toLowerCase());
+//            }
+//        }
+//        SQLGenerate sqlGenerate = new SQLGenerate();
+//        //获取SQL
+//        String sql;
+//        if (meaArr.size() == 1 && dimArr.length == 0)     //兼容指标卡的特殊Option
+//            sql =sqlGenerate.getWithOnemeas(funArr,meaArr,tableName,fileType,fileUrl,routeStr);
+//        else
+//            sql = sqlGenerate.getWithGroup(dimArr, funArr, meaArr,tableName,fileType,fileUrl,routeStr,limit);
+//        System.out.println("The SQL is: " + sql);
+//        List<Map> listJson = queryService.getQueryData(Arrays.asList(dimArr), funArr, meaArr, fileUrl, tableName, sql, routeStr);
+//
+////        List<String> mea_fun = new ArrayList<>();
+////        for (int i = 0;i<meaArr.size();i++){
+////            mea_fun.add(meaArr.get(i)+"_"+funArr.get(i));
+////        }
+////        JSONObject jo = newoptionService.newcreateOptionSpark(dimArr,mea_fun,listJson);
+////
+////        String clas ="2";
+////        if (mea_fun.size()>1){
+////            clas = "4";
+////        }
+////        Diagram diagram = diagramService.createDiagram("-1","unset",jo.toString(),clas,userId,dataSourceId);
+////        JSONObject re = new JSONObject();
+////        re.put("option",jo);
+////        re.put("diagramId",diagram.getId());
+////        re.put("diagramName",diagram.getName());
+////        re.put("classificaion",diagram.getClassification());
+////        re.put("userId",diagram.getUserId());
+////        re.put("dataSourceId",diagram.getDataSourceId());
+//
+//        result.put("result",WebConstant.QUERY_SUCCESS.isResult());
+//        result.put("reason",WebConstant.QUERY_SUCCESS.getReason());
+//        result.put("datum",listJson);
+//
+//        return result.toString();
+//    }
 
     @RequestMapping("/initDiagram")
-    public String initDiagram(String userId, String dataSourceId, String dims, String meas, String fileUrl, String tableName, String fileType, String limit,String rows){
+    public String initDiagram(String userId, String dataSourceId, String dims, String meas, String fileUrl, String tableName, String fileType, String limit,String rows, String dataType) {
         if (System.getProperty("os.name").split(" ")[0] == "Windows")
-        if (System.getProperty("os.name").split(" ")[0].equals("Windows"))  //为了FatBird电脑的配置
-             System.setProperty("hadoop.home.dir", "e:/hadoop");
+            if (System.getProperty("os.name").split(" ")[0].equals("Windows"))  //为了FatBird电脑的配置
+                System.setProperty("hadoop.home.dir", "e:/hadoop");
         System.out.println("-----------进入方法 /initDiagram----------");
         System.out.println("-----------参数1：dims = " + dims);
         System.out.println("-----------参数2：meas = " + meas);
@@ -148,10 +158,10 @@ public class DiaController {
         System.out.println("-----------参数4：tableName = " + tableName);
         System.out.println("-----------参数5：fileType = " + fileType);
 
-        if (dims.length() == 0 || dims.charAt(dims.length()-1) == ','){
+        if (dims.length() == 0 || dims.charAt(dims.length() - 1) == ',') {
             dims = dims + rows;
-        }else {
-            dims = dims +","+ rows;
+        } else {
+            dims = dims + "," + rows;
         }
         String[] dimArr = {};
         String[] funAndMeaArr;
@@ -164,49 +174,49 @@ public class DiaController {
 
         JSONObject result = new JSONObject();
 
-        if(dims != null && !dims.equals("") && !dims.equals(" ")){
-            dims = StringUtil.custom_trim(dims,',');
+        if (dims != null && !dims.equals("") && !dims.equals(" ")) {
+            dims = StringUtil.custom_trim(dims, ',');
             System.out.println("--------去,后：dims = " + dims);
             dimArr = dims.split(",");
-            if (fileUrl.startsWith("select ")){
-                for (int i = 0;i<dimArr.length;i++) {
-                    if (dimArr[i].split("\\.").length == 3){
-                        dimArr[i] = dimArr[i].split("\\.")[1]+"."+dimArr[i].split("\\.")[2];
-                    }else if (dimArr[i].split("\\.").length == 2){ //GD_GENERAL_INFO_W.EXAMINE_DATE_DAY
+            if (fileUrl.startsWith("select ")) {
+                for (int i = 0; i < dimArr.length; i++) {
+                    if (dimArr[i].split("\\.").length == 3) {
+                        dimArr[i] = dimArr[i].split("\\.")[1] + "." + dimArr[i].split("\\.")[2];
+                    } else if (dimArr[i].split("\\.").length == 2) {
                         dimArr[i] = dimArr[i];
                     }
                 }
             }
         }
-        if(meas != null && !meas.equals("") && !meas.equals(" ")){
-            meas = StringUtil.custom_trim(meas,',');
+        if (meas != null && !meas.equals("") && !meas.equals(" ")) {
+            meas = StringUtil.custom_trim(meas, ',');
             System.out.println("--------去,后：meas = " + meas);
             funAndMeaArr = meas.split(",");
             for (String item : funAndMeaArr) {
-                item = StringUtil.custom_trim(item,'.'); //去除首尾'.'
+                item = StringUtil.custom_trim(item, '.'); //去除首尾'.'
                 String[] itemSplit = item.split("\\.");
                 funArr.add(itemSplit[0]);
-                if (itemSplit.length == 4){         //操作名.数据库名.表名.维度
-                    meaArr.add(itemSplit[2]+"."+itemSplit[3]);
-                }else if (itemSplit.length == 2){   //操作名.维度
+                if (itemSplit.length == 4) {         //操作名.数据库名.表名.维度
+                    meaArr.add(itemSplit[2] + "." + itemSplit[3]);
+                } else if (itemSplit.length == 2) {   //操作名.维度
                     meaArr.add(itemSplit[1]);
-                }else if (itemSplit.length == 3){   //操作名.表名.维度
-                    meaArr.add(itemSplit[1]+"."+itemSplit[2]);
+                } else if (itemSplit.length == 3) {   //操作名.表名.维度
+                    meaArr.add(itemSplit[1] + "." + itemSplit[2]);
                 }
             }
         }
 
-        if(rows != null && !rows.equals("") && !rows.equals(" ")){
+        if (rows != null && !rows.equals("") && !rows.equals(" ")) {
             rowArr = rows.split(",");
         }
         //路由
-        String routeStr = queryRoute.route(Arrays.asList(dimArr), funArr, meaArr,tableName,fileUrl);
-        if (routeStr.equals("hive")){ //hive 查询出来列名都变成小写了
-            for (int i = 0;i<dimArr.length;i++){
+        String routeStr = queryRoute.route(Arrays.asList(dimArr), funArr, meaArr, tableName, fileUrl);
+        if (routeStr.equals("hive")) { //hive 查询出来列名都变成小写了
+            for (int i = 0; i < dimArr.length; i++) {
                 dimArr[i] = dimArr[i].toLowerCase();
             }
-            for (int i = 0;i<meaArr.size();i++){
-                meaArr.set(i,meaArr.get(i).toLowerCase());
+            for (int i = 0; i < meaArr.size(); i++) {
+                meaArr.set(i, meaArr.get(i).toLowerCase());
             }
         }
         SQLGenerate sqlGenerate = new SQLGenerate();
@@ -217,27 +227,29 @@ public class DiaController {
         String drillpath = "/Users/user1/Desktop/";
 //        String drillpath = "/home/fatbird/workspace/";
         if (meaArr.size() > 0 && funArr.size() > 0)
-            drillFileNameJudge +=tableName + "-" + meaArr.get(0) + "_" + funArr.get(0);
+            drillFileNameJudge += tableName + "-" + meaArr.get(0) + "_" + funArr.get(0);
         List<Map> listJson;
-        if (!FileOperate.initDrillJudge(drillpath,drillFileNameJudge)){     //不是上卷下钻且目录中无之前的文件
+        if (!FileOperate.initDrillJudge(drillpath, drillFileNameJudge)) {     //不是上卷下钻且目录中无之前的文件
 //            进入了非上卷下钻的操作
             if (meaArr.size() == 1 && dimArr.length == 0)     //兼容指标卡的特殊Option
-                sql =sqlGenerate.getWithOnemeas(funArr,meaArr,tableName,fileType,fileUrl,routeStr);
+                sql = sqlGenerate.getWithOnemeas(funArr, meaArr, tableName, fileType, fileUrl, routeStr);
             else
-                sql = sqlGenerate.getWithGroup(dimArr, funArr, meaArr,tableName,fileType,fileUrl,routeStr,limit);
+                sql = sqlGenerate.getWithGroup(dimArr, funArr, meaArr, tableName, fileType, fileUrl, routeStr, limit);
+
             System.out.println("The SQL is: " + sql);
             listJson = queryService.getQueryData(Arrays.asList(dimArr), funArr, meaArr, fileUrl, tableName, sql, routeStr);
-        }else{
+        } else {
 //            进入了上卷下钻的操作
-            sql = sqlGenerate.getWithScrollDrill(drillFileNameJudge,meas.split("\\."),-1,-1,-1,-1);
-            listJson = queryService.getQueryDataWithDrillParams(drillpath + drillFileNameJudge,drillFileNameJudge,sql);
+            sql = sqlGenerate.getWithScrollDrill(drillFileNameJudge, meas.split("\\."), -1, -1, -1, -1);
+            listJson = queryService.getQueryDataWithDrillParams(drillpath + drillFileNameJudge, drillFileNameJudge, sql);
         }
 
         Boolean drillflag = false;
         if (listJson.size() != 0)
-            if (!listJson.get(0).containsKey(dims))  //用来判断是否是可以上卷下钻的
-                drillflag = true;
-        if (drillflag){                             //为上卷下钻排序并增加一个"年"的后缀
+            if (dimArr.length != 0)
+                if (!listJson.get(0).containsKey(dimArr[0]))  //用来判断是否是可以上卷下钻的
+                    drillflag = true;
+        if (drillflag) {                             //为上卷下钻排序并增加一个"年"的后缀
             Collections.sort(listJson, new Comparator<Map>() {  //給整个listJson进行排序
                 public int compare(Map o1, Map o2) {
                     Integer date1 = Integer.valueOf(o1.get("year").toString());
@@ -245,39 +257,77 @@ public class DiaController {
                     return date1.compareTo(date2);
                 }
             });
-            for (Map tempmap : listJson){
-                tempmap.put("year",tempmap.get("year").toString() + "年");
+            for (Map tempmap : listJson) {
+                tempmap.put("year", tempmap.get("year").toString() + "年");
             }
         }
         //生成图的类型
-        String clas ="";
-        if (dimArr.length == 0){
+        String clas = "";
+        if (dimArr.length == 0) {
             clas = "-2"; //指标卡类型
         }
-        if (dimArr.length == 1 && meaArr.size() >1){
+        if (dimArr.length == 1 && meaArr.size() > 1) {
             clas = "4"; //雷达图
-        }else if (dimArr.length == 1 && meaArr.size() ==1){
+        } else if (dimArr.length == 1 && meaArr.size() == 1) {
             clas = "2"; //面积图
-        }else if (dimArr.length == 1 && meaArr.size() == 0){
+        } else if (dimArr.length == 1 && meaArr.size() == 0) {
             clas = "-1"; //只有横轴的半成品图
         }
-        if(dimArr.length > 1){
+        if (dimArr.length > 1) {
             clas = "-3"; //数据表格类型
         }
         JSONObject re = new JSONObject();
         Diagram diagram = new Diagram();
 
-        if (dimArr.length <= 1){ //返回option
+        if (dimArr.length <= 1) { //返回option
             List<String> mea_fun = new ArrayList<>();
-            for (int i = 0;i<meaArr.size();i++){
-                mea_fun.add(meaArr.get(i)+"_"+funArr.get(i));
+            for (int i = 0; i < meaArr.size(); i++) {
+                mea_fun.add(meaArr.get(i) + "_" + funArr.get(i));
             }
-            JSONObject jo = newoptionService.newcreateOptionSpark(dimArr,mea_fun,listJson);
+            JSONObject jo = newoptionService.newcreateOptionSpark(dimArr, mea_fun, listJson);
 
-            diagram = diagramService.createDiagram("-1","unset",jo.toString(),clas,userId,dataSourceId);
+            diagram = diagramService.createDiagram("-1", "unset", jo.toString(), clas, userId, dataSourceId);
+            re.put("option", jo);
+        } else if (dimArr.length > 1 && rows.equals("") && meas.equals("")) {    //进行上卷下钻的维度设置
+            Map newmap = dataTableInfoService.getCsvDim(fileUrl);
+            DrillDim drillDim = drillService.createDrillDim(tableName,dims);
+            Object[] objs = (Object[]) newmap.get("meas");
+            String[] fileMeas = new String[objs.length];
+            for (int i = 0;i <objs.length;i++)
+                fileMeas[i] = objs[i].toString();
+            //获取该表的所有维度，并对其进行建模计算
+            String[] drilldimArray = dims.split(",");
+            sql = sqlGenerate.buildWithDrillDims(tableName,fileMeas,drilldimArray);
+            sparkSqlService.DrillFileOutput(fileUrl, tableName, sql, drillDim.getId());
+            re.put("option",drillDim.getId());
+        } else if (dimArr.length > 1 && rows.equals("") && !meas.equals("")){    //进行上卷下钻的初始值返回
+            String[] paramsArr = "".split(",");
+            String[] measArr = meas.split("\\.");
+            DrillDim drillDim = drillService.getByDimsAndTablename(dims,tableName);
+            tableName += "-" + drillDim.getId();
+            String drillSQL = sqlGenerate.buildWithDrillParams(tableName,dimArr,paramsArr,measArr);
+            String pathurl = "/Users/user1/Desktop/";
+            listJson = queryService.getQueryDataWithDrillParams(pathurl+tableName,tableName,drillSQL);
+            JSONObject jo = new JSONObject();
+
+            if (dataType.equals("map")){
+                System.out.println("开始对地图数据进行分析");
+                String deepestParamValue = "china";
+                jo = newoptionService.createOptionOnMap(listJson,measArr,deepestParamValue);
+                diagram = diagramService.createDiagram("-1","unset",jo.toString(),"2",userId,dataSourceId);
+            }else{
+                System.out.println("普适性的数据上卷下钻分析");
+                List<String> mea_fun = new ArrayList<>();
+                mea_fun.add(measArr[0] + "_" + measArr[1]);
+                String deepestParamName = dims.split(",")[0];
+                System.out.println("深度的列名为：" + deepestParamName);
+                String[] drillDimArr = {deepestParamName};
+                jo = newoptionService.newcreateOptionSpark(drillDimArr,mea_fun,listJson);
+                diagram = diagramService.createDiagram("-1","unset",jo.toString(),"5",userId,dataSourceId);
+            }
             re.put("option",jo);
 
-        }else if(dimArr.length > 1){ //返回数据表格
+        } else if (dimArr.length > 1 && !rows.equals("")){ //返回数据表格
             diagram = diagramService.createDiagram("-1","unset",listJson.toString(),clas,userId,dataSourceId);
 
             //整理数据格式
