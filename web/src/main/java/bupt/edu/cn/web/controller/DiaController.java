@@ -290,16 +290,23 @@ public class DiaController {
             re.put("option", jo);
         } else if (dimArr.length > 1 && rows.equals("") && meas.equals("")) {    //进行上卷下钻的维度设置
             Map newmap = dataTableInfoService.getCsvDim(fileUrl);
-            DrillDim drillDim = drillService.createDrillDim(tableName,dims);
-            Object[] objs = (Object[]) newmap.get("meas");
-            String[] fileMeas = new String[objs.length];
-            for (int i = 0;i <objs.length;i++)
-                fileMeas[i] = objs[i].toString();
-            //获取该表的所有维度，并对其进行建模计算
-            String[] drilldimArray = dims.split(",");
-            sql = sqlGenerate.buildWithDrillDims(tableName,fileMeas,drilldimArray);
-            sparkSqlService.DrillFileOutput(fileUrl, tableName, sql, drillDim.getId());
-            re.put("option",drillDim.getId());
+            DrillDim drillDim = drillService.getByDimsAndTablename(dims,tableName);
+            System.out.println("+++++++");
+            System.out.println(drillDim.getDims());
+            System.out.println(drillDim.getId());
+            System.out.println(drillDim.getTablename());
+            if (drillDim.getDims() == null || drillDim.getId() == -1){
+                drillDim = drillService.createDrillDim(tableName,dims);
+                Object[] objs = (Object[]) newmap.get("meas");
+                String[] fileMeas = new String[objs.length];
+                for (int i = 0;i <objs.length;i++)
+                    fileMeas[i] = objs[i].toString();
+                //获取该表的所有维度，并对其进行建模计算
+                String[] drilldimArray = dims.split(",");
+                sql = sqlGenerate.buildWithDrillDims(tableName,fileMeas,drilldimArray);
+                sparkSqlService.DrillFileOutput(fileUrl, tableName, sql, drillDim.getId());
+            }
+            re.put("option","设置维度完成");
         } else if (dimArr.length > 1 && rows.equals("") && !meas.equals("")){    //进行上卷下钻的初始值返回
             String[] paramsArr = "".split(",");
             String[] measArr = meas.split("\\.");
@@ -308,7 +315,7 @@ public class DiaController {
             String drillSQL = sqlGenerate.buildWithDrillParams(tableName,dimArr,paramsArr,measArr);
             String pathurl = "/Users/user1/Desktop/";
             listJson = queryService.getQueryDataWithDrillParams(pathurl+tableName,tableName,drillSQL);
-            JSONObject jo = new JSONObject();
+            JSONObject jo;
 
             if (dataType.equals("map")){
                 System.out.println("开始对地图数据进行分析");
