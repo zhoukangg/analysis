@@ -314,6 +314,7 @@ public class DiaController {
             tableName += "-" + drillDim.getId();
             String drillSQL = sqlGenerate.buildWithDrillParams(tableName,dimArr,paramsArr,measArr);
             String pathurl = "/Users/user1/Desktop/";
+            //String pathurl = "/home/fatbird/workspace/";
             listJson = queryService.getQueryDataWithDrillParams(pathurl+tableName,tableName,drillSQL);
             JSONObject jo;
 

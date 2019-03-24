@@ -167,6 +167,7 @@ public class DrillController {
 
         String drillSQL = "";
         drillSQL = sqlGenerate.buildWithDrillParams(tableName,dimsArr,paramsArr,measArr);
+        //String pathurl = "/home/fatbird/workspace/";
         String pathurl = "/Users/user1/Desktop/";
         List<Map> listJson = queryService.getQueryDataWithDrillParams(pathurl+tableName,tableName,drillSQL);
         //为了普适性的option的生成，包括时间和其他，地图类的option单独生成
