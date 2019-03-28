@@ -229,18 +229,23 @@ public class DiaController {
         if (meaArr.size() > 0 && funArr.size() > 0)
             drillFileNameJudge += tableName + "-" + meaArr.get(0) + "_" + funArr.get(0);
         List<Map> listJson;
-        if (!FileOperate.initDrillJudge(drillpath, drillFileNameJudge)) {     //不是上卷下钻且目录中无之前的文件
-//            进入了非上卷下钻的操作
+        if (!FileOperate.initDrillJudge(drillpath, drillFileNameJudge)) {
+            /*
+            * 情况1：该列无法上卷下钻
+            * 情况2：该列可以上卷下钻，但是目录中没有已经缓存的文件
+            * */
             if (meaArr.size() == 1 && dimArr.length == 0)     //兼容指标卡的特殊Option
                 sql = sqlGenerate.getWithOnemeas(funArr, meaArr, tableName, fileType, fileUrl, routeStr);
             else
                 sql = sqlGenerate.getWithGroup(dimArr, funArr, meaArr, tableName, fileType, fileUrl, routeStr, limit);
-
             System.out.println("The SQL is: " + sql);
             listJson = queryService.getQueryData(Arrays.asList(dimArr), funArr, meaArr, fileUrl, tableName, sql, routeStr);
         } else {
-//            进入了上卷下钻的操作
+            /*
+            * 情况3：该列可以上卷下钻，且已经有缓存好的文件了
+            * */
             sql = sqlGenerate.getWithScrollDrill(drillFileNameJudge, meas.split("\\."), -1, -1, -1, -1);
+            System.out.println("The Drill SQL is :" + sql);
             listJson = queryService.getQueryDataWithDrillParams(drillpath + drillFileNameJudge, drillFileNameJudge, sql);
         }
 
@@ -291,10 +296,6 @@ public class DiaController {
         } else if (dimArr.length > 1 && rows.equals("") && meas.equals("")) {    //进行上卷下钻的维度设置
             Map newmap = dataTableInfoService.getCsvDim(fileUrl);
             DrillDim drillDim = drillService.getByDimsAndTablename(dims,tableName);
-            System.out.println("+++++++");
-            System.out.println(drillDim.getDims());
-            System.out.println(drillDim.getId());
-            System.out.println(drillDim.getTablename());
             if (drillDim.getDims() == null || drillDim.getId() == -1){
                 drillDim = drillService.createDrillDim(tableName,dims);
                 Object[] objs = (Object[]) newmap.get("meas");

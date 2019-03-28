@@ -301,7 +301,6 @@ public class SQLGenerate {
             result = "select * from `" + tablename + "` limit 1";
             System.out.println("输入year, month, day数据格式有误.");
         }
-        System.out.println("The Drill SQL is :" + result);
         return result;
     }
 

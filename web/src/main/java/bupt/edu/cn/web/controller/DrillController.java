@@ -39,35 +39,37 @@ public class DrillController {
 
     @Autowired
     bupt.edu.cn.spark.service.impl.SparkSqlServiceImpl sparkSqlService;
+/*  已经将该部分代码整合入initDiagram接口中
 
-//    @RequestMapping("/drillDimSet")
-//    public String drilloptionset(String tablename, String drilldims, String fileUrl){
-//        System.out.println("开始设置一个上卷下钻的维度值");
-//        JSONObject result = new JSONObject();
-//        DrillDim drillDim = drillService.createDrillDim(tablename,drilldims);
-//        Map newmap = dataTableInfoService.getCsvDim(fileUrl);
-//        Object[] objs = (Object[]) newmap.get("meas");
-//        String[] fileMeas = new String[objs.length];
-//        for (int i = 0;i <objs.length;i++)
-//            fileMeas[i] = objs[i].toString();
-//        //        获取该表的所有维度，并对其进行建模计算
-//        String[] drilldimArray = drilldims.split(",");
-//
-//        String sql = "";
-//        SQLGenerate sqlGenerate = new SQLGenerate();
-//        sql = sqlGenerate.buildWithDrillDims(tablename,fileMeas,drilldimArray);
-//
-//        System.out.println("开始生成模型");
-//        sparkSqlService.DrillFileOutput(fileUrl, tablename, sql, drillDim.getId());
-//        System.out.println("模型创建完成");
-//
-//        result.put("tablename",tablename);
-//        result.put("drilldims",drilldimArray);
-//        result.put("meas",fileMeas);
-//        result.put("drillID",drillDim.getId());
-//
-//        return result.toString();
-//    }
+    @RequestMapping("/drillDimSet")
+    public String drilloptionset(String tablename, String drilldims, String fileUrl){
+        System.out.println("开始设置一个上卷下钻的维度值");
+        JSONObject result = new JSONObject();
+        DrillDim drillDim = drillService.createDrillDim(tablename,drilldims);
+        Map newmap = dataTableInfoService.getCsvDim(fileUrl);
+        Object[] objs = (Object[]) newmap.get("meas");
+        String[] fileMeas = new String[objs.length];
+        for (int i = 0;i <objs.length;i++)
+            fileMeas[i] = objs[i].toString();
+        //        获取该表的所有维度，并对其进行建模计算
+        String[] drilldimArray = drilldims.split(",");
+
+        String sql = "";
+        SQLGenerate sqlGenerate = new SQLGenerate();
+        sql = sqlGenerate.buildWithDrillDims(tablename,fileMeas,drilldimArray);
+
+        System.out.println("开始生成模型");
+        sparkSqlService.DrillFileOutput(fileUrl, tablename, sql, drillDim.getId());
+        System.out.println("模型创建完成");
+
+        result.put("tablename",tablename);
+        result.put("drilldims",drilldimArray);
+        result.put("meas",fileMeas);
+        result.put("drillID",drillDim.getId());
+
+        return result.toString();
+    }
+*/
 
     @RequestMapping("/DataScrollDrill")
     public String DataScrollDrill(String userId, String dataSourceId, String dim, String mea, int year, int month, int day, int season, int chartType,
@@ -175,7 +177,8 @@ public class DrillController {
         Diagram diagram = new Diagram();
         JSONObject jo = new JSONObject();
 
-        if (dataType.equals("map")){
+        //新增chartType为19时代表地图数据格式
+        if (dataType.equals("map") && chartType == 19){
             System.out.println("开始对地图数据进行分析");
             String deepestParamValue = "china";
             if (paramsArr.length > 0){

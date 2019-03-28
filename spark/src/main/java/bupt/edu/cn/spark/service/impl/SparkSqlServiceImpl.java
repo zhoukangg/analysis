@@ -1,8 +1,8 @@
 package bupt.edu.cn.spark.service.impl;
 
 import bupt.edu.cn.spark.common.SpSession;
+//import bupt.edu.cn.web.pojo.DrillDim;
 import org.apache.spark.sql.*;
-import org.apache.spark.sql.sources.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import scala.Serializable;
@@ -31,9 +31,9 @@ public class SparkSqlServiceImpl implements Serializable {
                 System.out.println("开始按照上卷下钻进行分析");
                 String columnData = sqlDF.first().get(i).toString();
                 if (Pattern.matches(pattern,columnData) && sqlDF.columns().length > 1){  //该列匹配卷钻策略
-                    String nolimtSql = sql.split(" limit ")[0];
-                    String colName = nolimtSql.split(" ")[3].split("`")[1];
-                    Dataset<Row> twoColumnData = spark.sql(nolimtSql);  //得到全部数据的一个表
+                    String nolimitSql = sql.split(" limit ")[0];
+                    String colName = nolimitSql.split(" ")[3].split("`")[1];
+                    Dataset<Row> twoColumnData = spark.sql(nolimitSql);  //得到全部数据的一个表
                     twoColumnData = twoColumnData.withColumn(colName,twoColumnData.col(colName).cast("float"));
                     Dataset<Row> dataDS = DatetableTrans.transDS(twoColumnData, i); //解析出年月日和季度
                     sqlDF = twoColumnData.join(dataDS,twoColumnData.col(twoColumnData.columns()[i]).equalTo(dataDS.col("stringTime")),"left_outer").drop("stringTime");//将年月季度日4列加入Dataset中
