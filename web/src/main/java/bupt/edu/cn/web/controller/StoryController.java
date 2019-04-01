@@ -10,6 +10,7 @@ import bupt.edu.cn.web.repository.StoryRepository;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.peaceful.auth.sdk.spring.AUTH;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,8 @@ public class StoryController {
     @Autowired
     DiagramRepository diagramRepository;
 
+    @AUTH.RequireLogin
+    @AUTH.Role({"数据分析师","超级管理员"})
     @RequestMapping("/findAllStory")
     public ReturnModel findAllStory(String userId, HttpServletResponse response, HttpServletRequest request) {
         // 解决Ajax跨域请求问题
@@ -78,6 +81,8 @@ public class StoryController {
         return result;
     }
 
+    @AUTH.RequireLogin
+    @AUTH.Role({"数据分析师","超级管理员"})
     @ResponseBody
     @RequestMapping(value = "/createStory", method = RequestMethod.POST,produces = "application/json;charset=UTF-8")
     public ReturnModel createStory(@RequestParam(value="content") String content,@RequestParam(value="storyName") String storyName,@RequestParam(value="userId") String userId,  HttpServletResponse response, HttpServletRequest request) {
@@ -124,6 +129,8 @@ public class StoryController {
     }
 
     //
+    @AUTH.RequireLogin
+    @AUTH.Role({"数据分析师","超级管理员"})
     @RequestMapping("/updateStory")
     public ReturnModel updateStory(@RequestParam(value="storyId") String storyId,@RequestParam(value="content") String content,
                                    @RequestParam(value="storyName") String storyName,@RequestParam(value="userId") String userId,
@@ -172,6 +179,8 @@ public class StoryController {
     }
 
     //
+    @AUTH.RequireLogin
+    @AUTH.Role({"数据分析师","超级管理员"})
     @RequestMapping("/delectStory")
     public ReturnModel delectStory(String storyId, String userId, HttpServletResponse response, HttpServletRequest request) {
         // 解决Ajax跨域请求问题

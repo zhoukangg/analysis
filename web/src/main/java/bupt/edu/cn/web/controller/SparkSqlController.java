@@ -14,6 +14,7 @@ import bupt.edu.cn.web.service.OptionService;
 import bupt.edu.cn.web.util.SQLGenerate;
 //import net.minidev.json.JSONObject;
 import bupt.edu.cn.web.util.StringUtil;
+import com.peaceful.auth.sdk.spring.AUTH;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
@@ -52,6 +53,8 @@ public class SparkSqlController {
     @Autowired
     DiagramRepository diagramRepository;
 
+    @AUTH.RequireLogin
+    @AUTH.Role({"数据分析师","超级管理员"})
     @RequestMapping("/sparkSQLOption")
     public ReturnModel sparkSQLOption(
 //            @RequestParam(value = "diagramId") String diagramId,

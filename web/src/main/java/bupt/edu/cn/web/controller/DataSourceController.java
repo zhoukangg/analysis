@@ -9,6 +9,7 @@ import bupt.edu.cn.web.service.DataSourceService;
 import bupt.edu.cn.web.service.DataTableInfoService;
 import bupt.edu.cn.web.service.HiveService;
 import com.alibaba.fastjson.JSONObject;
+import com.peaceful.auth.sdk.spring.AUTH;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,6 +47,8 @@ public class DataSourceController {
      * @param request
      * @return
      */
+    @AUTH.RequireLogin
+    @AUTH.Role({"数据分析师","超级管理员"})
     @RequestMapping("/previewData")
     public ReturnModel previewData(String fileName, String fileUrl, String fileType, HttpServletResponse response, HttpServletRequest request) {
         // 解决Ajax跨域请求问题
@@ -69,6 +72,8 @@ public class DataSourceController {
      * @param request
      * @return
      */
+    @AUTH.RequireLogin
+    @AUTH.Role({"数据分析师","超级管理员"})
     @RequestMapping("/updateDataSource")
     public ReturnModel updateDataSource(HttpServletResponse response, HttpServletRequest request){
         // 解决Ajax跨域请求问题
@@ -137,6 +142,8 @@ public class DataSourceController {
      * @param request
      * @return
      */
+    @AUTH.RequireLogin
+    @AUTH.Role({"数据分析师","超级管理员"})
     @RequestMapping("/getDataSource")
     public ReturnModel getDataSource(HttpServletResponse response, HttpServletRequest request){
         // 解决Ajax跨域请求问题
@@ -166,6 +173,8 @@ public class DataSourceController {
      * @param request
      * @return
      */
+    @AUTH.RequireLogin
+    @AUTH.Role({"数据分析师","超级管理员"})
     @RequestMapping("/getHiveDim")
     public ReturnModel getHiveDim(String hiveTableName,String fileName,String fileUrl,HttpServletResponse response, HttpServletRequest request) {
         // 解决Ajax跨域请求问题
@@ -203,6 +212,8 @@ public class DataSourceController {
      * @param request
      * @return
      */
+    @AUTH.RequireLogin
+    @AUTH.Role({"数据分析师","超级管理员"})
     @RequestMapping("/getDim")
     public ReturnModel getDim(String fileName,String fileUrl,HttpServletResponse response, HttpServletRequest request){
         // 解决Ajax跨域请求问题

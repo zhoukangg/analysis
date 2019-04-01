@@ -28,6 +28,30 @@
 	<!-- Web模块相关依赖 -->
 	<dependencies>
 
+        <dependency>
+            <groupId>com.peaceful</groupId>
+            <artifactId>nuggets-auth-sdk</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.peaceful</groupId>
+            <artifactId>peaceful-common-utils</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
 		<dependency>
 			<groupId>bupt.edu.cn</groupId>
 			<artifactId>kylin</artifactId>

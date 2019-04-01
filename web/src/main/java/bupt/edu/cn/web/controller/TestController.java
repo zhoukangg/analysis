@@ -11,6 +11,8 @@ import bupt.edu.cn.web.util.SQLGenerate;
 import bupt.edu.cn.web.util.StringUtil;
 import bupt.edu.cn.web.util.chartsBase;
 //import com.alibaba.fastjson.JSONObject;
+import com.peaceful.auth.sdk.Impl.AuthServiceImpl;
+import com.peaceful.auth.sdk.api.AuthService;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
@@ -25,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
+import com.peaceful.auth.sdk.Impl.AuthServiceImpl;
 
 @RestController
 @RequestMapping("/user/*")

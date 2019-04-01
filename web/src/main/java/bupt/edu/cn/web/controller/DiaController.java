@@ -11,6 +11,7 @@ import bupt.edu.cn.web.util.QueryRoute;
 import bupt.edu.cn.web.util.SQLGenerate;
 import bupt.edu.cn.web.util.StringUtil;
 import bupt.edu.cn.web.util.chartsBase;
+import com.peaceful.auth.sdk.spring.AUTH;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -146,6 +147,8 @@ public class DiaController {
 //        return result.toString();
 //    }
 
+    @AUTH.RequireLogin
+    @AUTH.Role({"数据分析师","超级管理员"})
     @RequestMapping("/initDiagram")
     public String initDiagram(String userId, String dataSourceId, String dims, String meas, String fileUrl, String tableName, String fileType, String limit,String rows, String dataType) {
         if (System.getProperty("os.name").split(" ")[0] == "Windows")
@@ -451,6 +454,8 @@ public class DiaController {
     }
 
 
+    @AUTH.RequireLogin
+    @AUTH.Role({"数据分析师","超级管理员"})
     @RequestMapping("/newupdateDiagram")
     public String newupdateDiagram(int diagramId, String diagramName, int diagramType, int userId, HttpServletRequest request, HttpServletResponse response){
         // 解决Ajax跨域请求问题

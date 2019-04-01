@@ -10,6 +10,7 @@ import bupt.edu.cn.web.util.SQLGenerate;
 import bupt.edu.cn.web.util.StringUtil;
 import bupt.edu.cn.web.util.chartsBase;
 import com.alibaba.fastjson.JSON;
+import com.peaceful.auth.sdk.spring.AUTH;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -71,6 +72,8 @@ public class DrillController {
     }
 */
 
+    @AUTH.RequireLogin
+    @AUTH.Role({"数据分析师","超级管理员"})
     @RequestMapping("/DataScrollDrill")
     public String DataScrollDrill(String userId, String dataSourceId, String dim, String mea, int year, int month, int day, int season, int chartType,
                                   String tableName, HttpServletResponse response, HttpServletRequest request){
@@ -153,6 +156,8 @@ public class DrillController {
         return result.toString();
     }
 
+    @AUTH.RequireLogin
+    @AUTH.Role({"数据分析师","超级管理员"})
     @RequestMapping("drillData")
     public String drillData(String userId, String dataSourceId, String paramsName, String tableName, String paramsValue, String mea, String dataType,
                             int chartType, HttpServletResponse response, HttpServletRequest request){

@@ -8,6 +8,7 @@ import bupt.edu.cn.web.pojo.FaltTable;
 import bupt.edu.cn.web.repository.DataSourceRepository;
 import bupt.edu.cn.web.repository.FaltTableRepository;
 import bupt.edu.cn.web.util.SQLGenerate;
+import com.peaceful.auth.sdk.spring.AUTH;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ public class KylinController {
      * 创建宽表，并向数据源注册
      * @return
      */
+    @AUTH.RequireLogin
+    @AUTH.Role({"数据分析师","超级管理员"})
     @RequestMapping("/createFaltTable")
     public ReturnModel createFaltTable(){
         System.out.println("----------------createFaltTable--------------");
