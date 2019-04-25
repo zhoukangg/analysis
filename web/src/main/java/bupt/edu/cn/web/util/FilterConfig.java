@@ -1,5 +1,7 @@
 package bupt.edu.cn.web.util;
 
+import com.peaceful.auth.sdk.Impl.AuthServiceImpl;
+import com.peaceful.auth.sdk.api.AuthService;
 import com.peaceful.common.util.HttpContextFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

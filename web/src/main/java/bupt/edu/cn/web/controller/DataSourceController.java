@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.peaceful.auth.sdk.spring.AUTH;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -144,7 +145,7 @@ public class DataSourceController {
      */
     @AUTH.RequireLogin
     @AUTH.Role({"数据分析师","超级管理员"})
-    @RequestMapping("/getDataSource")
+    @RequestMapping(value = "/getDataSource", method = RequestMethod.GET)
     public ReturnModel getDataSource(HttpServletResponse response, HttpServletRequest request){
         // 解决Ajax跨域请求问题
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
