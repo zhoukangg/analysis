@@ -16,7 +16,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
-import com.peaceful.auth.sdk.spring.AUTH;
+import com.cn.bupt.cad.bigdataroles.annotation.Auth;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -50,8 +50,7 @@ public class DiagramController {
      * @param request
      * @return
      */
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping("/updateDiagram")
     public ReturnModel updateDiagram(String diagramId, String diagramName, String diagramType, String userId, HttpServletResponse response, HttpServletRequest request) {
         // 解决Ajax跨域请求问题
@@ -221,8 +220,8 @@ public class DiagramController {
      * @param request
      * @return
      */
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping("/saveDiagram")
     public ReturnModel saveDiagram(String diagramId, String diagramName,String option, String classificaion, String userId, String dataSourceId, HttpServletResponse response, HttpServletRequest request) {
         // 解决Ajax跨域请求问题
@@ -255,8 +254,7 @@ public class DiagramController {
      * @param request
      * @return
      */
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping("/getDiagramByUserId")
     public ReturnModel getDiagramByUserId(String userId, HttpServletResponse response, HttpServletRequest request) {
         // 解决Ajax跨域请求问题
@@ -285,8 +283,7 @@ public class DiagramController {
     }
 
     // option排序
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping(value = {"/optionSort", "sort"}, method = RequestMethod.GET)
     public JSONObject optionSort(String userId, HttpServletResponse response, HttpServletRequest request){
         String key1 = request.getParameter("key1");

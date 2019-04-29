@@ -1,16 +1,13 @@
 package bupt.edu.cn.web.controller;
 
 import bupt.edu.cn.web.common.ReturnModel;
-import bupt.edu.cn.web.pojo.DataSource;
 import bupt.edu.cn.web.pojo.FaltTable;
 import bupt.edu.cn.web.repository.DataSourceRepository;
 import bupt.edu.cn.web.repository.FaltTableRepository;
-import bupt.edu.cn.web.service.DataSourceService;
 import com.alibaba.fastjson.JSON;
-import com.peaceful.auth.sdk.spring.AUTH;
+import com.cn.bupt.cad.bigdataroles.annotation.Auth;
 import net.minidev.json.JSONObject;
 import bupt.edu.cn.kylin.service.KylinQueryService;
-import org.apache.catalina.LifecycleState;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,8 +26,7 @@ public class KylinQueryController {
     @Autowired
     FaltTableRepository faltTableRepository;
 
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping("/getCubes")
     public ReturnModel getCubes(String fileUrl, String tableName) {
 
@@ -66,8 +62,7 @@ public class KylinQueryController {
         return result;
     }
 
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping("/getCubeDims")
     public ReturnModel getCubeDims(String cubeName) {
 
@@ -98,8 +93,7 @@ public class KylinQueryController {
         return  result;
     }
 
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping("/getCubeTableDims")
     public ReturnModel getCubeTableDims(String cubeName, String tableName) {
 
@@ -148,8 +142,7 @@ public class KylinQueryController {
         return  result;
     }
 
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping("/getCubeTables")
     public ReturnModel getCubeTables(String cubeName) {
 
@@ -175,8 +168,7 @@ public class KylinQueryController {
         return  result;
     }
 
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping("/kylinSQL")
     public ReturnModel findTechnologyChildrens(@RequestParam(value = "sql") String sql) {
 
@@ -221,8 +213,7 @@ public class KylinQueryController {
         return result;
     }
 
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping("/kylinSQLTest")
     public ReturnModel kylinSQLTest(){
         String sql = "select PART_DT,LEAF_CATEG_ID from  KYLIN_SALES";

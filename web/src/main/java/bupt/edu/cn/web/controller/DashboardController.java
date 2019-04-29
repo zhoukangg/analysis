@@ -3,11 +3,9 @@ package bupt.edu.cn.web.controller;
 import bupt.edu.cn.web.common.ReturnModel;
 import bupt.edu.cn.web.pojo.Dashboard;
 import bupt.edu.cn.web.repository.DashboardRepository;
-import com.peaceful.auth.sdk.spring.AUTH;
+import com.cn.bupt.cad.bigdataroles.annotation.Auth;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,8 +21,7 @@ public class DashboardController {
     @Autowired
     DashboardRepository dashboardRepository;
 
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping("/saveDashboard")
     public ReturnModel saveDashboard(String dashboardId,String graphs, String userId, String name, HttpServletResponse response, HttpServletRequest request) {
         // 解决Ajax跨域请求问题
@@ -64,8 +61,7 @@ public class DashboardController {
         return result;
     }
 
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping("/getALLDashboard")
     public ReturnModel getALLDashboard(HttpServletResponse response, HttpServletRequest request) {
         // 解决Ajax跨域请求问题
@@ -78,8 +74,7 @@ public class DashboardController {
         return result;
     }
 
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping("/getDashboardById")
     public ReturnModel getDashboardById(String id, HttpServletResponse response, HttpServletRequest request) {
         // 解决Ajax跨域请求问题
@@ -99,8 +94,7 @@ public class DashboardController {
         return result;
     }
 
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping("/getDashboardByUserId")
     public ReturnModel getDashboardByUserId(String userId, HttpServletResponse response, HttpServletRequest request) {
         // 解决Ajax跨域请求问题
@@ -122,8 +116,7 @@ public class DashboardController {
         return result;
     }
 
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping("/deleteDashboardById")
     public ReturnModel deleteDashboardById(String id, HttpServletResponse response, HttpServletRequest request) {
         // 解决Ajax跨域请求问题

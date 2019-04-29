@@ -12,14 +12,12 @@ import bupt.edu.cn.web.service.DashboardService;
 import bupt.edu.cn.web.service.DiagramService;
 import bupt.edu.cn.web.service.OptionService;
 import bupt.edu.cn.web.util.SQLGenerate;
-//import net.minidev.json.JSONObject;
 import bupt.edu.cn.web.util.StringUtil;
-import com.peaceful.auth.sdk.spring.AUTH;
+import com.cn.bupt.cad.bigdataroles.annotation.Auth;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 public class SparkSqlController {
@@ -53,8 +50,7 @@ public class SparkSqlController {
     @Autowired
     DiagramRepository diagramRepository;
 
-    @AUTH.RequireLogin
-    @AUTH.Role({"数据分析师","超级管理员"})
+    @Auth(roles={"数据分析师","超级管理员"})
     @RequestMapping("/sparkSQLOption")
     public ReturnModel sparkSQLOption(
 //            @RequestParam(value = "diagramId") String diagramId,

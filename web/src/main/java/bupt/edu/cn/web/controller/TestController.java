@@ -3,20 +3,11 @@ package bupt.edu.cn.web.controller;
 import bupt.edu.cn.kylin.service.KylinQueryService;
 import bupt.edu.cn.spark.service.impl.TestServiceImpl;
 import bupt.edu.cn.web.common.ReturnModel;
-import bupt.edu.cn.web.common.WebConstant;
 import bupt.edu.cn.web.service.OptionService;
 import bupt.edu.cn.web.service.QueryService;
 import bupt.edu.cn.web.util.QueryRoute;
 import bupt.edu.cn.web.util.SQLGenerate;
 import bupt.edu.cn.web.util.StringUtil;
-import bupt.edu.cn.web.util.chartsBase;
-//import com.alibaba.fastjson.JSONObject;
-import com.peaceful.auth.sdk.Impl.AuthServiceImpl;
-import com.peaceful.auth.sdk.api.AuthService;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Encoders;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,8 +17,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import com.peaceful.auth.sdk.Impl.AuthServiceImpl;
 
 @RestController
 @RequestMapping("/user/*")
