@@ -131,7 +131,7 @@ public class SparkSqlController {
         if (mea_fun.size()>1){
             clas = "4";
         }
-        Diagram diagram = diagramService.createDiagram("-1","unset",op.toString(),clas,userId,dataSourceId);
+        Diagram diagram = diagramService.createDiagram("-1","picture",op.toString(),clas,userId,dataSourceId);
         //
         com.alibaba.fastjson.JSONObject re = new com.alibaba.fastjson.JSONObject();
         re.put("option",op);

@@ -1,4 +1,5 @@
 package bupt.edu.cn.web.controller;
+import breeze.linalg.dim;
 import bupt.edu.cn.spark.utils.FileOperate;
 import bupt.edu.cn.web.common.WebConstant;
 import bupt.edu.cn.web.pojo.Diagram;
@@ -147,6 +148,7 @@ public class DiaController {
         System.out.println("-----------参数3：fileUrl = " + fileUrl);
         System.out.println("-----------参数4：tableName = " + tableName);
         System.out.println("-----------参数5：fileType = " + fileType);
+        System.out.println("-----------参数6：rows = " + rows);
 
         if (dims.length() == 0 || dims.charAt(dims.length()-1) == ','){
             dims = dims + rows;
@@ -213,31 +215,42 @@ public class DiaController {
         //获取SQL
         String sql;
 
-        String drillFileNameJudge = "";
-//        String drillpath = "/Users/user1/Desktop/";
-        String drillpath = "/home/fatbird/workspace/";
-        if (meaArr.size() > 0 && funArr.size() > 0)
-            drillFileNameJudge +=tableName + "-" + meaArr.get(0) + "_" + funArr.get(0);
-        List<Map> listJson;
-        if (!FileOperate.initDrillJudge(drillpath,drillFileNameJudge)){     //不是上卷下钻且目录中无之前的文件
+        String drillFileNameJudge = "-1";
+        String drillpath = "/root/zhoukang/projectFile/";
+//        String drillpath = "/Users/kang/D/projectFile/";
+        if (meaArr.size() > 0 && funArr.size() > 0 && dimArr.length ==1)
+            drillFileNameJudge =tableName + "-" + meaArr.get(0) + "_" + funArr.get(0) + "-" + dimArr[0];
+        // 存储计算结果
+        List<Map> listJson = new ArrayList<>();
+        // 怎么判断是否是上卷下钻
+        System.out.println("Judge:::");
+        System.out.println(!FileOperate.initDrillJudge(drillpath,drillFileNameJudge));
+        System.out.println(rows != null);
+        if (!FileOperate.initDrillJudge(drillpath,drillFileNameJudge) ||
+                (rows != null && !rows.equals(""))  ||    //多维表格模式
+                (meaArr.size()>1 && dimArr.length==1) ||    //雷达图模式
+                (meaArr.size() == 1 && dimArr.length==0)    //指标卡模式
+           ){     //不是上卷下钻或目录中无之前的文件
+//        if (!dims.contains("日期")){     //不是上卷下钻且目录中无之前的文件
 //            进入了非上卷下钻的操作
+            System.out.println("---------NONONONONONO-------非上卷下钻的操作----------------------");
             if (meaArr.size() == 1 && dimArr.length == 0)     //兼容指标卡的特殊Option
                 sql =sqlGenerate.getWithOnemeas(funArr,meaArr,tableName,fileType,fileUrl,routeStr);
             else
                 sql = sqlGenerate.getWithGroup(dimArr, funArr, meaArr,tableName,fileType,fileUrl,routeStr,limit);
             System.out.println("The SQL is: " + sql);
             listJson = queryService.getQueryData(Arrays.asList(dimArr), funArr, meaArr, fileUrl, tableName, sql, routeStr);
-        }else{
-//            进入了上卷下钻的操作
+        }else if(dimArr.length==1){
+//            进入了上卷下钻的操作 &&
             sql = sqlGenerate.getWithScrollDrill(drillFileNameJudge,meas.split("\\."),-1,-1,-1,-1);
             listJson = queryService.getQueryDataWithDate(drillpath + drillFileNameJudge,drillFileNameJudge,sql);
         }
 
         Boolean drillflag = false;
         if (listJson.size() != 0)
-            if (!listJson.get(0).containsKey(dims))  //用来判断是否是可以上卷下钻的
+            if (!listJson.get(0).containsKey(dims) && !(dimArr.length == 0 && meaArr.size()!=0) && !(dimArr.length>1&&meaArr.size()==1) && dimArr.length==1)  //用来判断是否是可以上卷下钻的
                 drillflag = true;
-        if (drillflag){                             //为上卷下钻排序并增加一个"年"的后缀
+        if (drillflag){                             // 为上卷下钻排序并增加一个"年"的后缀
             Collections.sort(listJson, new Comparator<Map>() {  //給整个listJson进行排序
                 public int compare(Map o1, Map o2) {
                     Integer date1 = Integer.valueOf(o1.get("year").toString());
@@ -267,18 +280,18 @@ public class DiaController {
         JSONObject re = new JSONObject();
         Diagram diagram = new Diagram();
 
-        if (dimArr.length <= 1){ //返回option
+        if (rowArr.length < 1){ //返回option
             List<String> mea_fun = new ArrayList<>();
             for (int i = 0;i<meaArr.size();i++){
                 mea_fun.add(meaArr.get(i)+"_"+funArr.get(i));
             }
             JSONObject jo = newoptionService.newcreateOptionSpark(dimArr,mea_fun,listJson);
 
-            diagram = diagramService.createDiagram("-1","unset",jo.toString(),clas,userId,dataSourceId);
+            diagram = diagramService.createDiagram("-1","picture",jo.toString(),clas,userId,dataSourceId);
             re.put("option",jo);
 
-        }else if(dimArr.length > 1){ //返回数据表格
-            diagram = diagramService.createDiagram("-1","unset",listJson.toString(),clas,userId,dataSourceId);
+        }else if(rowArr.length >0){ //返回数据表格
+            diagram = diagramService.createDiagram("-1","picture",listJson.toString(),clas,userId,dataSourceId);
 
             //整理数据格式
             //构造列结构
@@ -334,7 +347,10 @@ public class DiaController {
                     cowName = cowName + "_" + listJson.get(i).get(cowList.get(j));
                 }
 
+                System.out.println("---------listJson.get(i).toString()------------");
+                System.out.println(listJson.get(i).toString());
                 for (int j = 0;j<rowArr.length;j++){
+                    System.out.println(rowArr[j]);
                     String value = listJson.get(i).get(rowArr[j]).toString();
                     int flag = isExistInJSONArray(now,"name",value);
                     if (flag == -1){
@@ -520,12 +536,12 @@ public class DiaController {
             }
         }
 
-        String fileName = tableName + "-" + measArr[1] + "_" + measArr[0];
+        String fileName = tableName + "-" + measArr[1] + "_" + measArr[0] + "-" + dimArr[0];
 
         SQLGenerate sqlGenerate = new SQLGenerate();
         String sql = "";
-        String pathurl = "/home/fatbird/workspace/";
-//        String pathurl = "/Users/user1/Desktop/";
+//        String pathurl = "/Users/kang/D/projectFile/";
+        String pathurl = "/root/zhoukang/projectFile/";
         sql = sqlGenerate.getWithScrollDrill(fileName, measArr, year, season, month, day);
         System.out.println("The SQL is : " + sql);
         List<Map> listJson = queryService.getQueryDataWithDate(pathurl+fileName,fileName,sql);
@@ -542,6 +558,9 @@ public class DiaController {
                 break;
             case "day":
                 colNameInCN = "日";
+                break;
+            case "season":
+                colNameInCN = "季度";
             default:
                 break;
         }
@@ -562,7 +581,7 @@ public class DiaController {
         List<String> mea_fun = new ArrayList<>();
         mea_fun.add(measArr[1] + "_" + measArr[0]);
         JSONObject jo = newoptionService.newcreateOptionSpark(dimArr,mea_fun,listJson);
-        diagram = diagramService.createDiagram("-1","unset",jo.toString(),"2",userId,dataSourceId);
+        diagram = diagramService.createDiagram("-1","picture",jo.toString(),"2",userId,dataSourceId);
         String str_newDiagram = new chartsBase().transDiagram(2,chartType,diagram.getChart());
         diagramService.updateDiagram(diagram.getId() + "", diagram.getName(), str_newDiagram, "5", userId + "");
 

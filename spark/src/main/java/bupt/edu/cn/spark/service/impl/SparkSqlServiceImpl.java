@@ -27,22 +27,23 @@ public class SparkSqlServiceImpl implements Serializable {
             Dataset<Row> sqlDF = spark.sql(sql);
             String pattern = "(19|20)\\d{2}(\\\\|\\/|-|年)((0?\\d)|(1[0-2]))(\\\\|\\/|-|月)((0?\\d)|((1|2)\\d)|3(0|1))日?";
             for (int i=0; i < sqlDF.columns().length;i++){  //注！仅支持一维度
-                System.out.println("开始按照上卷下钻进行分析");
                 String columnData = sqlDF.first().get(i).toString();
-                if (Pattern.matches(pattern,columnData) && sqlDF.columns().length > 1){  //该列匹配卷钻策略
+                if (Pattern.matches(pattern,columnData) && sqlDF.columns().length == 2){  //该列匹配卷钻策略
+                    System.out.println("开始按照上卷下钻进行分析");
                     String nolimtSql = sql.split(" limit ")[0];
-                    String colName = nolimtSql.split(" ")[3].split("`")[1];
+                    String colName = nolimtSql.split(" ")[3].split("`")[1];     //数量_max
+                    String rowName = nolimtSql.split(" ")[3].split("`")[3];     //订购日期
                     Dataset<Row> twoColumnData = spark.sql(nolimtSql);  //得到全部数据的一个表
                     twoColumnData = twoColumnData.withColumn(colName,twoColumnData.col(colName).cast("float"));
                     Dataset<Row> dataDS = DatetableTrans.transDS(twoColumnData, i); //解析出年月日和季度
                     sqlDF = twoColumnData.join(dataDS,twoColumnData.col(twoColumnData.columns()[i]).equalTo(dataDS.col("stringTime")),"left_outer").drop("stringTime");//将年月季度日4列加入Dataset中
                     sqlDF = sqlDF.drop(sqlDF.columns()[i]);     //删除掉默认的2017-1-1的列
-//                    String pathName = "/Users/user1/Desktop/";
-//                    String pathName = "/home/fatbird/workspace/";
-//                    String saveName = pathName + tableName + "-" + colName;
-//                    System.out.println("Save path is :" + saveName);
-//                    sqlDF.write().option("header", "true").csv(saveName);
-//                    combineCSV(tableName + "-" + colName,pathName);
+//                    String pathName = "/Users/kang/D/projectFile/";
+                    String pathName = "/root/zhoukang/projectFile/";
+                    String saveName = pathName + tableName + "-" + colName + "-" + rowName;
+                    System.out.println("Save path is :" + saveName);
+                    sqlDF.write().option("header", "true").csv(saveName);
+                    combineCSV(tableName + "-" + colName + "-" + rowName,pathName);
                     switch (colName.split("_")[1]){
                         case "max":
                             sqlDF = sqlDF.groupBy("year").max(colName);

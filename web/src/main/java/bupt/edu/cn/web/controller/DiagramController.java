@@ -147,7 +147,7 @@ public class DiagramController {
             dataMeas = chartModelRadar.series.get(0).data.get(0).value;
             optionName = chartModelRadar.title.text;
             //
-            dimsName = "unset";
+            dimsName = "dimsName";
             //只取第一个度量（丢失其它度量）
             measName = chartModelRadar.series.get(0).data.get(0).name;
 

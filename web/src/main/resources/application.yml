@@ -15,7 +15,7 @@ spring:
         hibernate:
           dialect: org.hibernate.dialect.MySQL5Dialect
 server:
-  port: 6992
+  port: 6993
   tomcat:
     uri-encoding: UTF-8
 #  additional-tld-skip-patterns:
