@@ -2,8 +2,10 @@ package bupt.edu.cn.web.controller;
 import breeze.linalg.dim;
 import bupt.edu.cn.spark.utils.FileOperate;
 import bupt.edu.cn.web.common.WebConstant;
+import bupt.edu.cn.web.pojo.DataSource;
 import bupt.edu.cn.web.pojo.Diagram;
 import bupt.edu.cn.web.pojo.DiagramSql;
+import bupt.edu.cn.web.repository.DataSourceRepository;
 import bupt.edu.cn.web.repository.DiagramRepository;
 import bupt.edu.cn.web.repository.DiagramSQLRepository;
 import bupt.edu.cn.web.service.DiagramService;
@@ -30,10 +32,13 @@ public class DiaController {
 
     @Autowired
     DiagramSQLRepository diagramSQLRepository;
-    
+
+    @Autowired
+    DataSourceRepository dataSourceRepository;
+
     @Autowired
     DiagramService diagramService;
-    
+
     @Autowired
     NewOptionService newoptionService;
 
@@ -145,8 +150,8 @@ public class DiaController {
     @RequestMapping("/initDiagram")
     public String initDiagram(String userId, String dataSourceId, String dims, String meas, String fileUrl, String tableName, String fileType, String limit,String rows){
         if (System.getProperty("os.name").split(" ")[0] == "Windows")
-        if (System.getProperty("os.name").split(" ")[0].equals("Windows"))  //为了FatBird电脑的配置
-             System.setProperty("hadoop.home.dir", "e:/hadoop");
+            if (System.getProperty("os.name").split(" ")[0].equals("Windows"))  //为了FatBird电脑的配置
+                System.setProperty("hadoop.home.dir", "e:/hadoop");
         System.out.println("-----------进入方法 /initDiagram----------");
         System.out.println("-----------参数1：dims = " + dims);
         System.out.println("-----------参数2：meas = " + meas);
@@ -166,8 +171,11 @@ public class DiaController {
         List<String> meaArr = new ArrayList<>();
         List<String> funArr = new ArrayList<>();
 
+        // 找到真正的 data_source_id
+        // !!!!! 如果数据库中没有符合条件的，此处会出错
         DiagramSql diagramSql = new DiagramSql();
-        diagramSql.setDataSourceId(dataSourceId);
+        List<DataSource> dsList = dataSourceRepository.findByFileNameAndAndFileUrl(tableName, fileUrl);
+        diagramSql.setDataSourceId(String.valueOf(dsList.get(0).getId()));
         diagramSql.setUserId(userId);
 
         if (dims.equals("") && meas.equals(""))       //两个都是空的时候直接返回空值
@@ -225,8 +233,8 @@ public class DiaController {
         String sql;
 
         String drillFileNameJudge = "-1";
-        String drillpath = "/root/zhoukang/projectFile/";
-//        String drillpath = "/Users/kang/D/projectFile/";
+//        String drillpath = "/root/zhoukang/projectFile/";
+        String drillpath = "/Users/user1/Desktop/";
         if (meaArr.size() > 0 && funArr.size() > 0 && dimArr.length ==1)
             drillFileNameJudge =tableName + "-" + meaArr.get(0) + "_" + funArr.get(0) + "-" + dimArr[0];
         // 存储计算结果
@@ -239,7 +247,7 @@ public class DiaController {
                 (rows != null && !rows.equals(""))  ||    //多维表格模式
                 (meaArr.size()>1 && dimArr.length==1) ||    //雷达图模式
                 (meaArr.size() == 1 && dimArr.length==0)    //指标卡模式
-           ){     //不是上卷下钻或目录中无之前的文件
+        ){     //不是上卷下钻或目录中无之前的文件
 //        if (!dims.contains("日期")){     //不是上卷下钻且目录中无之前的文件
 //            进入了非上卷下钻的操作
             System.out.println("---------NONONONONONO-------非上卷下钻的操作----------------------");
