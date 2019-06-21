@@ -3,7 +3,9 @@ import breeze.linalg.dim;
 import bupt.edu.cn.spark.utils.FileOperate;
 import bupt.edu.cn.web.common.WebConstant;
 import bupt.edu.cn.web.pojo.Diagram;
+import bupt.edu.cn.web.pojo.DiagramSql;
 import bupt.edu.cn.web.repository.DiagramRepository;
+import bupt.edu.cn.web.repository.DiagramSQLRepository;
 import bupt.edu.cn.web.service.DiagramService;
 import bupt.edu.cn.web.service.NewOptionService;
 import bupt.edu.cn.web.service.QueryService;
@@ -25,6 +27,9 @@ public class DiaController {
 
     @Autowired
     DiagramRepository diagramRepository;
+
+    @Autowired
+    DiagramSQLRepository diagramSQLRepository;
     
     @Autowired
     DiagramService diagramService;
@@ -161,6 +166,10 @@ public class DiaController {
         List<String> meaArr = new ArrayList<>();
         List<String> funArr = new ArrayList<>();
 
+        DiagramSql diagramSql = new DiagramSql();
+        diagramSql.setDataSourceId(dataSourceId);
+        diagramSql.setUserId(userId);
+
         if (dims.equals("") && meas.equals(""))       //两个都是空的时候直接返回空值
             return "";
 
@@ -238,11 +247,13 @@ public class DiaController {
                 sql =sqlGenerate.getWithOnemeas(funArr,meaArr,tableName,fileType,fileUrl,routeStr);
             else
                 sql = sqlGenerate.getWithGroup(dimArr, funArr, meaArr,tableName,fileType,fileUrl,routeStr,limit);
+            diagramSql.setSqlinfo(sql);
             System.out.println("The SQL is: " + sql);
             listJson = queryService.getQueryData(Arrays.asList(dimArr), funArr, meaArr, fileUrl, tableName, sql, routeStr);
         }else if(dimArr.length==1){
 //            进入了上卷下钻的操作 &&
             sql = sqlGenerate.getWithScrollDrill(drillFileNameJudge,meas.split("\\."),-1,-1,-1,-1);
+            diagramSql.setSqlinfo(sql);
             listJson = queryService.getQueryDataWithDate(drillpath + drillFileNameJudge,drillFileNameJudge,sql);
         }
 
@@ -390,6 +401,8 @@ public class DiaController {
             op.put("rows",rowJson);
             re.put("option",op);
         }
+        diagramSql.setDiagramid(diagram.getId());
+        diagramSQLRepository.saveAndFlush(diagramSql);
         re.put("diagramId",diagram.getId());
         re.put("diagramName",diagram.getName());
         re.put("classificaion",diagram.getClassification());

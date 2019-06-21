@@ -9,6 +9,7 @@ public interface DiagramRepository extends JpaRepository<Diagram,Long> {
 
     @Override
     List<Diagram> findAllById(Iterable<Long> iterable);
+    Diagram findByIdEquals(Long id);
 
     List<Diagram> findByUserId(String userId);
     List<Diagram> findByUserIdAndSaved(String userId,String saved);
