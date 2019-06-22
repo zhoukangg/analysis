@@ -47,8 +47,8 @@
         <!--<table tableName="user"></table>-->
         <!--<table tableName="data_source"></table>-->
         <!--<table tableName="dashboard"></table>-->
-        <!--<table tableName="cockpit"></table>-->
-        <table tableName="diagram_sql"></table>
+        <table tableName="cockpit"></table>
+        <!--<table tableName="diagram_sql"></table>-->
         <!--<table tableName="story"></table>-->
         <!--<table tableName="story_item"></table>-->
 

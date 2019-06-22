@@ -32,7 +32,7 @@ public class DashboardController {
     DiagramRepository diagramRepository;
 
     @RequestMapping(value = "/saveCockpit", method = RequestMethod.POST)
-    public ReturnModel saveCockpit(String cockpitId, String diagramsIDs, String name, String userId, String info,
+    public ReturnModel saveCockpit(String cockpitId, String diagramsIDs, String name, String userId, String info, String layoutConf,
                                    HttpServletResponse response, HttpServletRequest request){
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
@@ -58,6 +58,7 @@ public class DashboardController {
         cockpit.setName(name);
         cockpit.setDiagramids(diagramsIDs);
         cockpit.setInfo(info);
+        cockpit.setLayoutconf(layoutConf);
         cockpitRepository.saveAndFlush(cockpit);
         result.setResult(true);
         return result;
@@ -70,16 +71,13 @@ public class DashboardController {
         System.out.println("----------getCockpitByUserId-----------");
         System.out.println("userId = " + userId);
         ReturnModel result = new ReturnModel();
-//        +++++++++++++++++++++++++++++++++++++++++++
-//        try {
-//            result.setDatum(cockpitRepository.findAllByUserId(userId));
-//            result.setResult(true);
-//        }catch (Exception e){
-//            result.setResult(false);
-//            result.setReason(e.toString());
-//        }
-//        +++++++++++++++++++++++++++++++++++++++++++
-
+        try {
+            result.setDatum(cockpitRepository.findAllByUserId(userId));
+            result.setResult(true);
+        }catch (Exception e){
+            result.setResult(false);
+            result.setReason(e.toString());
+        }
         return result;
     }
 
