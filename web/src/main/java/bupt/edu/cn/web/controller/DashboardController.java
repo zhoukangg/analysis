@@ -98,6 +98,21 @@ public class DashboardController {
         return result;
     }
 
+    @RequestMapping("/setCockpitRealTime")
+    public ReturnModel setCockpitRealTime(int cockpitId, boolean isRealTime, HttpServletResponse response, HttpServletRequest request){
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        ReturnModel result = new ReturnModel();
+        try {
+            cockpitRepository.updataRealTime(isRealTime, cockpitId);
+            result.setResult(true);
+        }catch (Exception e){
+            result.setResult(false);
+            result.setReason(e.toString());
+        }
+        return result;
+    }
+
     @RequestMapping("/getCockpitById")
     public ReturnModel getCockpitById(int cockpitId, HttpServletResponse response, HttpServletRequest request){
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
@@ -111,7 +126,6 @@ public class DashboardController {
             result.setResult(false);
             result.setReason(e.toString());
         }
-
         String[] diagramsId = cockpit.getDiagramids().split(",");
         Diagram[] diagramArr = new Diagram[diagramsId.length];
         for (int i = 0; i < diagramsId.length; i++) {

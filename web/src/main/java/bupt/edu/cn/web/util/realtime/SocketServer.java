@@ -19,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-@ServerEndpoint(value = "/socketServer/{userName}")
+@ServerEndpoint(value = "/socketServer/{cockpitId}")
 @Component
 public class SocketServer {
 
@@ -39,10 +39,10 @@ public class SocketServer {
 
 	/**
 	 *
-	 * 服务端的userName,因为用的是set，每个客户端的username必须不一样，否则会被覆盖。
+	 * 服务端的cockpitId,因为用的是set，每个客户端的cockpitId必须不一样，否则会被覆盖。
 	 * 要想完成ui界面聊天的功能，服务端也需要作为客户端来接收后台推送用户发送的信息
 	 */
-	private final static String SYS_USERNAME = "niezhiliang9595";
+	private final static String SYS_USERNAME = "pcncad";
 
 
 	//创建文件变化监听器
@@ -55,26 +55,27 @@ public class SocketServer {
 	 * 保存客户端连接信息的socketServers中
 	 *
 	 * @param session
-	 * @param userName
+	 * @param cockpitId
 	 */
 	@OnOpen
-	public void open(Session session, @PathParam(value="userName")String userName){
+	public void open(Session session, @PathParam(value="cockpitId")String cockpitId){
 
 		this.session = session;
-		socketServers.add(new Client(userName,session));
+		socketServers.add(new Client(cockpitId,session));
 		if(socketServers.size()==1){
-			observerFile(userName);
+			observerFile(cockpitId);
 		}
 		else{
 			logger.info("文件已经处于监听状态");
 		}
-		logger.info("客户端:【{}】连接成功",userName);
+		logger.info("客户端:【{}】连接成功",cockpitId);
 	}
 
-	public void observerFile(String userName){
+	public void observerFile(String cockpitId){
 		try {
 			// 监控目录
-			String rootDir = "/Users/kang/D/dataTest";
+//			String rootDir = "/Users/kang/D/dataTest";
+			String rootDir = "/Users/user1/Desktop";
 			// 轮询间隔 5 秒
 			long interval = TimeUnit.SECONDS.toMillis(1);
 			// 创建过滤器
@@ -99,7 +100,7 @@ public class SocketServer {
 			// 开始监控
 			monitor.start();
 		}catch (Exception e){
-			logger.info(userName,"监听文件出错");
+			logger.info(cockpitId,"监听文件出错");
 		}
 	}
 
@@ -116,9 +117,9 @@ public class SocketServer {
 
 		Client client = socketServers.stream().filter( cli -> cli.getSession() == session)
 				.collect(Collectors.toList()).get(0);
-		sendMessage(client.getUserName()+"<--"+message,SYS_USERNAME);
+		sendMessage(client.getCockpitId()+"<--"+message,SYS_USERNAME);
 
-		logger.info("客户端:【{}】发送信息:{}",client.getUserName(),message);
+		logger.info("客户端:【{}】发送信息:{}",client.getCockpitId(),message);
 	}
 
 	/**
@@ -131,7 +132,7 @@ public class SocketServer {
 		socketServers.forEach(client ->{
 			if (client.getSession().getId().equals(session.getId())) {
 
-				logger.info("客户端:【{}】断开连接",client.getUserName());
+				logger.info("客户端:【{}】断开连接",client.getCockpitId());
 				socketServers.remove(client);
 				if(socketServers.isEmpty()){
 					// 关闭监控
@@ -158,7 +159,7 @@ public class SocketServer {
 		socketServers.forEach(client ->{
 			if (client.getSession().getId().equals(session.getId())) {
 				socketServers.remove(client);
-				logger.error("客户端:【{}】发生异常",client.getUserName());
+				logger.error("客户端:【{}】发生异常",client.getCockpitId());
 				error.printStackTrace();
 			}
 		});
@@ -174,11 +175,11 @@ public class SocketServer {
 	public synchronized static void sendMessage(String message,String userName) {
 
 		socketServers.forEach(client ->{
-			if (userName.equals(client.getUserName())) {
+			if (userName.equals(client.getCockpitId())) {
 				try {
 					client.getSession().getBasicRemote().sendText(message);
 
-					logger.info("服务端推送给客户端 :【{}】",client.getUserName(),message);
+					logger.info("服务端推送给客户端 :【{}】",client.getCockpitId(),message);
 
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -201,7 +202,7 @@ public class SocketServer {
 	 * @return
 	 */
 	public synchronized static int getOnlineNum(){
-		return socketServers.stream().filter(client -> !client.getUserName().equals(SYS_USERNAME))
+		return socketServers.stream().filter(client -> !client.getCockpitId().equals(SYS_USERNAME))
 				.collect(Collectors.toList()).size();
 	}
 
@@ -213,8 +214,8 @@ public class SocketServer {
 	public synchronized static List<String> getOnlineUsers(){
 
 		List<String> onlineUsers = socketServers.stream()
-				.filter(client -> !client.getUserName().equals(SYS_USERNAME))
-				.map(client -> client.getUserName())
+				.filter(client -> !client.getCockpitId().equals(SYS_USERNAME))
+				.map(client -> client.getCockpitId())
 				.collect(Collectors.toList());
 
 	    return onlineUsers;
@@ -228,7 +229,7 @@ public class SocketServer {
 	 */
 	public synchronized static void sendAll(String message) {
 		//群发，不能发送给服务端自己
-		socketServers.stream().filter(cli -> cli.getUserName() != SYS_USERNAME)
+		socketServers.stream().filter(cli -> cli.getCockpitId() != SYS_USERNAME)
 				.forEach(client -> {
 			try {
 				client.getSession().getBasicRemote().sendText(message);
@@ -255,11 +256,11 @@ public class SocketServer {
 
 	public synchronized static void sendResult(String message,String userName) {
 		socketServers.forEach(client ->{
-			if (userName.equals(client.getUserName())) {
+			if (userName.equals(client.getCockpitId())) {
 				try {
 					client.getSession().getBasicRemote().sendText(message);
 
-					logger.info("服务端推送给客户端 :【{}】",client.getUserName(),message);
+					logger.info("服务端推送给客户端 :【{}】",client.getCockpitId(),message);
 
 				} catch (IOException e) {
 					e.printStackTrace();

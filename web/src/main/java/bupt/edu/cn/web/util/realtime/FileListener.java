@@ -13,7 +13,6 @@ import java.io.File;
  * 由文件监控类FileAlterationMonitor中的线程不停的扫描文件观察器FileAlterationObserver，
  * 如果有文件的变化，则根据相关的文件比较器，判断文件时新增，还是删除，还是更改。（默认为1000毫秒执行一次扫描）
  *
- *
  */
 public class FileListener extends FileAlterationListenerAdaptor {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(SocketServer.class);
@@ -29,6 +28,7 @@ public class FileListener extends FileAlterationListenerAdaptor {
      * 重新计算
      */
     public void onFileChange(File file) {
+        // TODO: 2019-06-22 在這裡寫要改的Option的邏輯
         log.info("[修改]:" + file.getAbsolutePath());
         SocketServer.sendAll("文件修改了");
     }

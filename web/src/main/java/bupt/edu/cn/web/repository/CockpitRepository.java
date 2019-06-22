@@ -20,5 +20,10 @@ public interface CockpitRepository extends JpaRepository<Cockpit, Long>{
     public void updateCockpit(String name, String diagramIDs, String desc, int id);
 
     @Transactional
+    @Modifying
+    @Query(value = "update cockpit set realtime=?1 where id=?2", nativeQuery = true)
+    public void updataRealTime(boolean isRealTime, int id);
+
+    @Transactional
     void deleteById(Integer CockId);
 }
