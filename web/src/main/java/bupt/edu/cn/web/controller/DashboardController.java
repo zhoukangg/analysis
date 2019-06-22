@@ -111,6 +111,7 @@ public class DashboardController {
             result.setResult(false);
             result.setReason(e.toString());
         }
+
         String[] diagramsId = cockpit.getDiagramids().split(",");
         Diagram[] diagramArr = new Diagram[diagramsId.length];
         for (int i = 0; i < diagramsId.length; i++) {
