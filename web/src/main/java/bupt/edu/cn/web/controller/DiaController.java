@@ -174,9 +174,14 @@ public class DiaController {
         // 找到真正的 data_source_id
         // !!!!! 如果数据库中没有符合条件的，此处会出错
         DiagramSql diagramSql = new DiagramSql();
-        List<DataSource> dsList = dataSourceRepository.findByFileNameAndAndFileUrl(tableName, fileUrl);
-        diagramSql.setDataSourceId(String.valueOf(dsList.get(0).getId()));
-        diagramSql.setUserId(userId);
+        try {
+            List<DataSource> dsList = dataSourceRepository.findByFileNameAndAndFileUrl(tableName, fileUrl);
+            dataSourceId = String.valueOf(dsList.get(0).getId());
+            diagramSql.setDataSourceId(dataSourceId);
+            diagramSql.setUserId(userId);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
 
         if (dims.equals("") && meas.equals(""))       //两个都是空的时候直接返回空值
             return "";
