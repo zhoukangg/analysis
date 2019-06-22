@@ -2,8 +2,10 @@ package bupt.edu.cn.web.controller;
 import breeze.linalg.dim;
 import bupt.edu.cn.spark.utils.FileOperate;
 import bupt.edu.cn.web.common.WebConstant;
+import bupt.edu.cn.web.pojo.DataSource;
 import bupt.edu.cn.web.pojo.Diagram;
 import bupt.edu.cn.web.pojo.DiagramSql;
+import bupt.edu.cn.web.repository.DataSourceRepository;
 import bupt.edu.cn.web.repository.DiagramRepository;
 import bupt.edu.cn.web.repository.DiagramSQLRepository;
 import bupt.edu.cn.web.service.DiagramService;
@@ -30,6 +32,9 @@ public class DiaController {
 
     @Autowired
     DiagramSQLRepository diagramSQLRepository;
+
+    @Autowired
+    DataSourceRepository dataSourceRepository;
     
     @Autowired
     DiagramService diagramService;
@@ -166,8 +171,10 @@ public class DiaController {
         List<String> meaArr = new ArrayList<>();
         List<String> funArr = new ArrayList<>();
 
+        // 找到真正的data_source_id
         DiagramSql diagramSql = new DiagramSql();
-        diagramSql.setDataSourceId(dataSourceId);
+        List<DataSource> dsList = dataSourceRepository.findByFileNameAndFileUrl(tableName, fileUrl);
+        diagramSql.setDataSourceId(String.valueOf(dsList.get(0).getId()));
         diagramSql.setUserId(userId);
 
         if (dims.equals("") && meas.equals(""))       //两个都是空的时候直接返回空值
