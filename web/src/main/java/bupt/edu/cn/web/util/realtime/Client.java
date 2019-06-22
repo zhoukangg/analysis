@@ -12,15 +12,15 @@ public class Client implements Serializable {
 
     private static final long serialVersionUID = 8957107006902627635L;
 
-    private String cockpitId;
+    private int cockpitId;
 
     private Session session;
 
-    public String getCockpitId() {
+    public int getCockpitId() {
         return cockpitId;
     }
 
-    public void setCockpitId(String cockpitId) {
+    public void setCockpitId(int cockpitId) {
         this.cockpitId = cockpitId;
     }
 
@@ -32,7 +32,7 @@ public class Client implements Serializable {
         this.session = session;
     }
 
-    public Client(String cockpitId, Session session) {
+    public Client(int cockpitId, Session session) {
         this.cockpitId = cockpitId;
         this.session = session;
     }

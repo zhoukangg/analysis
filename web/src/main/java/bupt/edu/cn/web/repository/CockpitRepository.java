@@ -9,10 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface CockpitRepository extends JpaRepository<Cockpit, Long>{
-    @Override
-    List<Cockpit> findAllById(Iterable<Long> iterable);
+
     Cockpit findById(int CockId);
     List<Cockpit> findAllByUserId(String userId);
+    List<Cockpit> findAllById(int cockpitId);
 
     @Transactional
     @Modifying

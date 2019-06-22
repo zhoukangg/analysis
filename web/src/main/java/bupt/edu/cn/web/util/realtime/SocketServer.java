@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import bupt.edu.cn.web.util.realtime.rtAction.*;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
@@ -42,7 +43,7 @@ public class SocketServer {
 	 * 服务端的cockpitId,因为用的是set，每个客户端的cockpitId必须不一样，否则会被覆盖。
 	 * 要想完成ui界面聊天的功能，服务端也需要作为客户端来接收后台推送用户发送的信息
 	 */
-	private final static String SYS_USERNAME = "pcncad";
+	private final static int SYS_USERNAME = -1;
 
 
 	//创建文件变化监听器
@@ -58,7 +59,7 @@ public class SocketServer {
 	 * @param cockpitId
 	 */
 	@OnOpen
-	public void open(Session session, @PathParam(value="cockpitId")String cockpitId){
+	public void open(Session session, @PathParam(value="cockpitId")int cockpitId){
 
 		this.session = session;
 		socketServers.add(new Client(cockpitId,session));
@@ -71,10 +72,10 @@ public class SocketServer {
 		logger.info("客户端:【{}】连接成功",cockpitId);
 	}
 
-	public void observerFile(String cockpitId){
+	public void observerFile(int cockpitId){
 		try {
+			String[] paths = new rtAction().getAllPath(Integer.valueOf(cockpitId));
 			// 监控目录
-//			String rootDir = "/Users/kang/D/dataTest";
 			String rootDir = "/Users/user1/Desktop";
 			// 轮询间隔 5 秒
 			long interval = TimeUnit.SECONDS.toMillis(1);
@@ -100,7 +101,7 @@ public class SocketServer {
 			// 开始监控
 			monitor.start();
 		}catch (Exception e){
-			logger.info(cockpitId,"监听文件出错");
+			logger.info(cockpitId+"","监听文件出错");
 		}
 	}
 
@@ -170,12 +171,12 @@ public class SocketServer {
 	 * 信息发送的方法，通过客户端的userName
 	 * 拿到其对应的session，调用信息推送的方法
 	 * @param message
-	 * @param userName
+	 * @param cockpitId
 	 */
-	public synchronized static void sendMessage(String message,String userName) {
+	public synchronized static void sendMessage(String message,int cockpitId) {
 
 		socketServers.forEach(client ->{
-			if (userName.equals(client.getCockpitId())) {
+			if (cockpitId == client.getCockpitId()) {
 				try {
 					client.getSession().getBasicRemote().sendText(message);
 
@@ -202,7 +203,7 @@ public class SocketServer {
 	 * @return
 	 */
 	public synchronized static int getOnlineNum(){
-		return socketServers.stream().filter(client -> !client.getCockpitId().equals(SYS_USERNAME))
+		return socketServers.stream().filter(client -> !(client.getCockpitId() == SYS_USERNAME))
 				.collect(Collectors.toList()).size();
 	}
 
@@ -211,15 +212,15 @@ public class SocketServer {
 	 * 获取在线用户名，前端界面需要用到
 	 * @return
 	 */
-	public synchronized static List<String> getOnlineUsers(){
-
-		List<String> onlineUsers = socketServers.stream()
-				.filter(client -> !client.getCockpitId().equals(SYS_USERNAME))
-				.map(client -> client.getCockpitId())
-				.collect(Collectors.toList());
-
-	    return onlineUsers;
-	}
+//	public synchronized static List<String> getOnlineUsers(){
+//
+//		List<String> onlineUsers = socketServers.stream()
+//				.filter(client -> !client.getCockpitId().equals(SYS_USERNAME))
+//				.map(client -> client.getCockpitId())
+//				.collect(Collectors.toList());
+//
+//	    return onlineUsers;
+//	}
 
 	/**
 	 *
@@ -245,11 +246,11 @@ public class SocketServer {
 	 *
 	 * 多个人发送给指定的几个用户
 	 * @param message
-	 * @param persons
+	 * @param ids
 	 */
-	public synchronized static void SendMany(String message,String [] persons) {
-		for (String userName : persons) {
-			sendMessage(message,userName);
+	public synchronized static void SendMany(String message,int [] ids) {
+		for (int cockpitId : ids) {
+			sendMessage(message,cockpitId);
 		}
 	}
 

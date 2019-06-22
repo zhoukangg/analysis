@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.crypto.Data;
 import java.util.List;
 
 public interface DataSourceRepository extends JpaRepository<DataSource,Integer> {
@@ -13,6 +14,8 @@ public interface DataSourceRepository extends JpaRepository<DataSource,Integer> 
     List<DataSource> findByFileUrl(String fileUrl);
     List<DataSource> findByFileType(String filetype);
     List<DataSource> findByFileNameAndFileUrl(String fileName, String fileUrl);
+
+    List<DataSource> findById(int id);
 
     @Transactional
     @Modifying
