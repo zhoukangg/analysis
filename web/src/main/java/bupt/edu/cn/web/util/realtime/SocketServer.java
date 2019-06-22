@@ -97,6 +97,7 @@ public class SocketServer{
 				boolean flag = true;
 				String keyName = cpl.dataSources.get(i).getFileUrl();
 				if (FilesCount.containsKey(keyName)){
+					FilesCount.put(keyName,FilesCount.get(keyName)+1);
 					continue;
 				}
 				String[] cut = cpl.dataSources.get(i).getFileUrl().split("\\/");
