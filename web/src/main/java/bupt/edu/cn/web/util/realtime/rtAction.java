@@ -8,13 +8,17 @@ import bupt.edu.cn.web.repository.CockpitRepository;
 import bupt.edu.cn.web.repository.DataSourceRepository;
 import bupt.edu.cn.web.repository.DiagramRepository;
 import bupt.edu.cn.web.repository.DiagramSQLRepository;
+import bupt.edu.cn.web.service.NewOptionService;
 import bupt.edu.cn.web.service.QueryService;
+import bupt.edu.cn.web.util.StringUtil;
 import bupt.edu.cn.web.util.realtime.SocketServer;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -35,6 +39,10 @@ public class rtAction {
 
     @Autowired
     QueryService queryService;
+
+    @Autowired
+    NewOptionService newoptionService;
+
 
     public boolean getAllPath(CockpitListener cpl){
         try {
@@ -66,27 +74,63 @@ public class rtAction {
                     String sql = cockpitListener.diagramSqls.get(i).getSqlinfo();
                     List<Map> listJson = queryService.getQueryDataWithDate(fileUrl, tableName, sql);
                     Diagram oldDiagram = cockpitListener.diagrams.get(i);
+                    generateOption(listJson, oldDiagram,cockpitListener.diagramSqls.get(i));
                     diagramRepository.saveAndFlush(cockpitListener.diagrams.get(i));
                 }
             }
         });
     }
 
-    public String generateOption(List<Map> listJson, Diagram oldDiagram){
+    public void generateOption(List<Map> listJson, Diagram oldDiagram, DiagramSql diagramSql){
         String oldOption = oldDiagram.getChart();
         String clas = oldDiagram.getClassification();
-        String option = "";
-        if (clas == "-2"){
+        String rows = diagramSql.getRows();
+        String dims = diagramSql.getDims();
+        String meas = diagramSql.getMeas();
+        List<String> meaArr = new ArrayList<>();
+        List<String> funArr = new ArrayList<>();
+        String[] funAndMeaArr;
+        String[] dimArr = {};
+        List<String> mea_fun = new ArrayList<>();
 
+        if(meas != null && !meas.equals("") && !meas.equals(" ")){
+            meas = StringUtil.custom_trim(meas,',');
+            funAndMeaArr = meas.split(",");
+            for (String item : funAndMeaArr) {
+                item = StringUtil.custom_trim(item,'.'); //去除首尾'.'
+                String[] itemSplit = item.split("\\.");
+                funArr.add(itemSplit[0]);
+                if (itemSplit.length == 4){         //操作名.数据库名.表名.维度
+                    meaArr.add(itemSplit[2]+"."+itemSplit[3]);
+                }else if (itemSplit.length == 2){   //操作名.维度
+                    meaArr.add(itemSplit[1]);
+                }else if (itemSplit.length == 3){   //操作名.表名.维度
+                    meaArr.add(itemSplit[1]+"."+itemSplit[2]);
+                }
+            }
+        }
+        if(dims != null && !dims.equals("") && !dims.equals(" ")){
+            dims = StringUtil.custom_trim(dims,',');
+            System.out.println("--------去,后：dims = " + dims);
+            dimArr = dims.split(",");
+        }
+        for (int i = 0;i<meaArr.size();i++){
+            mea_fun.add(meaArr.get(i)+"_"+funArr.get(i));
+        }
+
+        JSONObject jo = newoptionService.newcreateOptionSpark(dimArr,mea_fun,listJson);
+        if (clas == "-2"){
+            oldDiagram.setChart(jo.toString());
         }else if (clas == "4"){
+            JSONObject optionJO = new JSONObject(oldOption);
+            String chartType = optionJO.getJSONArray("series").getJSONObject(0).getString("type");
+
 
         }else if (clas == "2"){
 
         }else if (clas == "-3"){
 
         }
-
-        oldDiagram.setChart(option);
-        return option;
+//        oldDiagram.setChart(option);
     }
 }

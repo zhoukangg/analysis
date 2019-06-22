@@ -179,6 +179,10 @@ public class DiaController {
             dataSourceId = String.valueOf(dsList.get(0).getId());
             diagramSql.setDataSourceId(dataSourceId);
             diagramSql.setUserId(userId);
+            diagramSql.setRows(rows);
+            diagramSql.setDims(dims);
+            diagramSql.setMeas(meas);
+            diagramSql.setUpdateTime(new Date());
         } catch (Exception e){
             e.printStackTrace();
         }
