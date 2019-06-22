@@ -13,6 +13,7 @@ public interface DataSourceRepository extends JpaRepository<DataSource,Integer> 
     List<DataSource> findByFileUrl(String fileUrl);
     List<DataSource> findByFileType(String filetype);
     List<DataSource> findByFileNameAndFileUrl(String fileName, String fileUrl);
+
     @Transactional
     @Modifying
     @Query("delete from DataSource  where fileUrl=?1 and fileType=?2")
