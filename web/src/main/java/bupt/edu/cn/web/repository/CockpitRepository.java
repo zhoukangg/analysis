@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface CockpitRepository extends JpaRepository<Cockpit, Long>{
 
-    Cockpit findById(int CockId);
+    public Cockpit findById(int CockId);
     List<Cockpit> findAllByUserId(String userId);
-    List<Cockpit> findAllById(int cockpitId);
+    List<Cockpit> findAllById(Long cockpitId);
 
     @Transactional
     @Modifying
@@ -23,6 +23,10 @@ public interface CockpitRepository extends JpaRepository<Cockpit, Long>{
     @Modifying
     @Query(value = "update cockpit set realtime=?1 where id=?2", nativeQuery = true)
     public void updataRealTime(boolean isRealTime, int id);
+
+    @Transactional
+    @Query(value = "select * from cockpit where id=?1", nativeQuery = true)
+    public List<Cockpit> getCockpitById(int id);
 
     @Transactional
     void deleteById(Integer CockId);

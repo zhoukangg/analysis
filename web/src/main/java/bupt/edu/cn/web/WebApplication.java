@@ -1,7 +1,9 @@
 package bupt.edu.cn.web;
 
+import bupt.edu.cn.web.util.realtime.SocketServer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
@@ -9,6 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
 public class WebApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(WebApplication.class, args);
+		ConfigurableApplicationContext configurableApplicationContext = SpringApplication.run(WebApplication.class, args);
+		SocketServer.setApplicationContext(configurableApplicationContext);
 	}
 }

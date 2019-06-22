@@ -7,22 +7,28 @@ import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import bupt.edu.cn.web.util.realtime.rtAction.*;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @ServerEndpoint(value = "/socketServer/{cockpitId}")
 @Component
-public class SocketServer {
+public class SocketServer{
+
+	private static ApplicationContext applicationContext;
+	rtAction rtaction;
+
+	public static void setApplicationContext(ApplicationContext applicationContext){
+		SocketServer.applicationContext = applicationContext;
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
 
@@ -30,8 +36,7 @@ public class SocketServer {
 	 *
 	 * 用线程安全的CopyOnWriteArraySet来存放客户端连接的信息
 	 */
-	private static CopyOnWriteArraySet<Client> socketServers = new CopyOnWriteArraySet<>();
-
+	private static CopyOnWriteArraySet<CockpitListener> socketServers = new CopyOnWriteArraySet<>();
 	/**
 	 *
 	 * websocket封装的session,信息推送，就是通过它来信息推送
@@ -60,11 +65,15 @@ public class SocketServer {
 	 */
 	@OnOpen
 	public void open(Session session, @PathParam(value="cockpitId")int cockpitId){
-
+		rtaction = applicationContext.getBean(rtAction.class);
+		logger.info("监听CockpitIdL：" + cockpitId + "!!!!!");
 		this.session = session;
-		socketServers.add(new Client(cockpitId,session));
+		CockpitListener cpl = new CockpitListener(new Client(cockpitId, session));
+//		new rtAction().getAllPath(cpl);
+		rtaction.getAllPath(cpl);
+		socketServers.add(cpl);
 		if(socketServers.size()==1){
-			observerFile(cockpitId);
+			observerFile(cpl);
 		}
 		else{
 			logger.info("文件已经处于监听状态");
@@ -72,36 +81,36 @@ public class SocketServer {
 		logger.info("客户端:【{}】连接成功",cockpitId);
 	}
 
-	public void observerFile(int cockpitId){
+	public void observerFile(CockpitListener cpl){
 		try {
-			String[] paths = new rtAction().getAllPath(Integer.valueOf(cockpitId));
-			// 监控目录
-			String rootDir = "/Users/user1/Desktop";
-			// 轮询间隔 5 秒
-			long interval = TimeUnit.SECONDS.toMillis(1);
 			// 创建过滤器
-			IOFileFilter directories = FileFilterUtils.and(
-					FileFilterUtils.directoryFileFilter(),
-					HiddenFileFilter.VISIBLE);
-			IOFileFilter files       = FileFilterUtils.and(
+			for (int i = 0; i < cpl.diagrams.size(); i++) {
+				String[] cut = cpl.dataSources.get(i).getFileUrl().split("\\/");
+				String filename = cut[cut.length-1];
+				// 监控目录
+				String rootDir = cpl.dataSources.get(i).getFileUrl().substring(0,cpl.dataSources.get(i).getFileUrl().length()-filename.length()-1);
+				// 轮询间隔 5 秒
+				long interval = TimeUnit.SECONDS.toMillis(1);
+				IOFileFilter directories = FileFilterUtils.and(
+						FileFilterUtils.directoryFileFilter(),
+						HiddenFileFilter.VISIBLE);
+				IOFileFilter files = FileFilterUtils.and(
 					FileFilterUtils.fileFileFilter(),
-					FileFilterUtils.suffixFileFilter(".csv"));
-			//            IOFileFilter files       = FileFilterUtils.and(
-			//                    FileFilterUtils.fileFileFilter(),
-			//                    FileFilterUtils.nameFileFilter("kang.csv"));
-			IOFileFilter filter = FileFilterUtils.or(directories, files);
-			// 使用过滤器
-			FileAlterationObserver observer = new FileAlterationObserver(new File(rootDir), filter);
-			//不使用过滤器
-			//FileAlterationObserver observer = new FileAlterationObserver(new File(rootDir));
-			observer.addListener(new FileListener());
-			//创建文件变化监听器
-			logger.info("开始监听文件");
-			monitor = new FileAlterationMonitor(interval, observer);
-			// 开始监控
-			monitor.start();
+					FileFilterUtils.suffixFileFilter(filename));
+				IOFileFilter filter = FileFilterUtils.or(directories, files);
+				FileAlterationObserver observer = new FileAlterationObserver(new File(rootDir), filter);
+				//不使用过滤器
+				//FileAlterationObserver observer = new FileAlterationObserver(new File(rootDir));
+				observer.addListener(new FileListener());
+				//创建文件变化监听器
+				logger.info("开始监听文件");
+				monitor = new FileAlterationMonitor(interval, observer);
+				cpl.FileAlterationMonitors.add(monitor);
+				// 开始监控
+				monitor.start();
+			}
 		}catch (Exception e){
-			logger.info(cockpitId+"","监听文件出错");
+			logger.info(cpl+"","监听文件出错");
 		}
 	}
 
@@ -116,11 +125,11 @@ public class SocketServer {
 	@OnMessage
 	public void onMessage(String message){
 
-		Client client = socketServers.stream().filter( cli -> cli.getSession() == session)
+		CockpitListener cockpitListener = socketServers.stream().filter( cpListener -> cpListener.client.getSession() == session)
 				.collect(Collectors.toList()).get(0);
-		sendMessage(client.getCockpitId()+"<--"+message,SYS_USERNAME);
+		sendMessage(cockpitListener.client.getCockpitId()+"<--"+message,SYS_USERNAME);
 
-		logger.info("客户端:【{}】发送信息:{}",client.getCockpitId(),message);
+		logger.info("客户端:【{}】发送信息:{}",cockpitListener.client.getCockpitId(),message);
 	}
 
 	/**
@@ -130,21 +139,18 @@ public class SocketServer {
 	 */
 	@OnClose
 	public void onClose(){
-		socketServers.forEach(client ->{
-			if (client.getSession().getId().equals(session.getId())) {
-
-				logger.info("客户端:【{}】断开连接",client.getCockpitId());
-				socketServers.remove(client);
-				if(socketServers.isEmpty()){
-					// 关闭监控
-					try {
-						if(socketServers.isEmpty()) {
-							monitor.stop();
-							logger.info("关闭监听文件");
-						}
-					}catch (Exception e){
-						logger.info("关闭监听文件出错");
+		socketServers.forEach(cockpitListener ->{
+			if (cockpitListener.client.getSession().getId().equals(session.getId())) {
+				logger.info("客户端:【{}】断开连接",cockpitListener.client.getCockpitId());
+				socketServers.remove(cockpitListener);
+				// 关闭监控
+				try {
+					for (int i = 0; i < cockpitListener.FileAlterationMonitors.size(); i++) {
+						monitor.stop();
+						logger.info("关闭监听器" + i);
 					}
+				}catch (Exception e){
+					logger.info("关闭监听器出错");
 				}
 			}
 		});
@@ -157,10 +163,10 @@ public class SocketServer {
 	 */
     @OnError
     public void onError(Throwable error) {
-		socketServers.forEach(client ->{
-			if (client.getSession().getId().equals(session.getId())) {
-				socketServers.remove(client);
-				logger.error("客户端:【{}】发生异常",client.getCockpitId());
+		socketServers.forEach(cockpitListener ->{
+			if (cockpitListener.client.getSession().getId().equals(session.getId())) {
+				socketServers.remove(cockpitListener);
+				logger.error("客户端:【{}】发生异常",cockpitListener.client.getCockpitId());
 				error.printStackTrace();
 			}
 		});
@@ -175,12 +181,12 @@ public class SocketServer {
 	 */
 	public synchronized static void sendMessage(String message,int cockpitId) {
 
-		socketServers.forEach(client ->{
-			if (cockpitId == client.getCockpitId()) {
+		socketServers.forEach(cockpitListener ->{
+			if (cockpitId == cockpitListener.client.getCockpitId()) {
 				try {
-					client.getSession().getBasicRemote().sendText(message);
+					cockpitListener.client.getSession().getBasicRemote().sendText(message);
 
-					logger.info("服务端推送给客户端 :【{}】",client.getCockpitId(),message);
+					logger.info("服务端推送给客户端 :【{}】",cockpitListener.client.getCockpitId(),message);
 
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -203,7 +209,7 @@ public class SocketServer {
 	 * @return
 	 */
 	public synchronized static int getOnlineNum(){
-		return socketServers.stream().filter(client -> !(client.getCockpitId() == SYS_USERNAME))
+		return socketServers.stream().filter(cockpitListener -> !(cockpitListener.client.getCockpitId() == SYS_USERNAME))
 				.collect(Collectors.toList()).size();
 	}
 
@@ -230,10 +236,10 @@ public class SocketServer {
 	 */
 	public synchronized static void sendAll(String message) {
 		//群发，不能发送给服务端自己
-		socketServers.stream().filter(cli -> cli.getCockpitId() != SYS_USERNAME)
-				.forEach(client -> {
+		socketServers.stream().filter(cockpitListener -> cockpitListener.client.getCockpitId() != SYS_USERNAME)
+				.forEach(cockpitListener -> {
 			try {
-				client.getSession().getBasicRemote().sendText(message);
+				cockpitListener.client.getSession().getBasicRemote().sendText(message);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -256,12 +262,12 @@ public class SocketServer {
 
 
 	public synchronized static void sendResult(String message,String userName) {
-		socketServers.forEach(client ->{
-			if (userName.equals(client.getCockpitId())) {
+		socketServers.forEach(cockpitListener ->{
+			if (userName.equals(cockpitListener.client.getCockpitId())) {
 				try {
-					client.getSession().getBasicRemote().sendText(message);
+					cockpitListener.client.getSession().getBasicRemote().sendText(message);
 
-					logger.info("服务端推送给客户端 :【{}】",client.getCockpitId(),message);
+					logger.info("服务端推送给客户端 :【{}】",cockpitListener.client.getCockpitId(),message);
 
 				} catch (IOException e) {
 					e.printStackTrace();

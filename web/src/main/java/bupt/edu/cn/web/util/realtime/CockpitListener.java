@@ -3,6 +3,7 @@ package bupt.edu.cn.web.util.realtime;
 
 import bupt.edu.cn.web.pojo.DataSource;
 import bupt.edu.cn.web.pojo.Diagram;
+import bupt.edu.cn.web.pojo.DiagramSql;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 
 import java.util.ArrayList;
@@ -22,6 +23,8 @@ public class CockpitListener {
 
     public List<Diagram> diagrams;
 
+    public List<DiagramSql> diagramSqls;
+
     public List<DataSource> dataSources;
 
     public List<FileAlterationMonitor> FileAlterationMonitors;
@@ -31,6 +34,7 @@ public class CockpitListener {
         this.diagrams = new ArrayList<>();
         this.dataSources = new ArrayList<>();
         this.FileAlterationMonitors = new ArrayList<>();
+        this.diagramSqls = new ArrayList<>();
     }
 
     public CockpitListener(Client client){
@@ -39,6 +43,7 @@ public class CockpitListener {
         this.diagrams = new ArrayList<>();
         this.dataSources = new ArrayList<>();
         this.FileAlterationMonitors = new ArrayList<>();
+        this.diagramSqls = new ArrayList<>();
     }
 
     public CockpitListener(int cockpitId,Client client){
@@ -47,6 +52,7 @@ public class CockpitListener {
         this.diagrams = new ArrayList<>();
         this.dataSources = new ArrayList<>();
         this.FileAlterationMonitors = new ArrayList<>();
+        this.diagramSqls = new ArrayList<>();
     }
 
 }
