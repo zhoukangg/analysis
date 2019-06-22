@@ -60,7 +60,6 @@ public class rtAction {
                 cpl.diagrams.add(diagramRepository.findByIdEquals(Long.valueOf(result[i])));
                 DiagramSql dsql = diagramSQLRepository.findByDiagramid(Long.valueOf(result[i])).get(0);
                 cpl.diagramSqls.add(dsql);
-                System.out.println("Pring" + dsql.getId());
                 DataSource dataSource = dataSourceRepository.findById(Integer.valueOf(dsql.getDataSourceId())).get();
                 cpl.dataSources.add(dataSource);
                 pathResult[i] = dataSource.getFileUrl();

@@ -27,13 +27,11 @@ public class CockpitListener {
 
     public List<DataSource> dataSources;
 
-    public List<FileAlterationMonitor> FileAlterationMonitors;
 
     public CockpitListener(){
         this.cockpitId = -1;
         this.diagrams = new ArrayList<>();
         this.dataSources = new ArrayList<>();
-        this.FileAlterationMonitors = new ArrayList<>();
         this.diagramSqls = new ArrayList<>();
     }
 
@@ -42,7 +40,6 @@ public class CockpitListener {
         this.client = client;
         this.diagrams = new ArrayList<>();
         this.dataSources = new ArrayList<>();
-        this.FileAlterationMonitors = new ArrayList<>();
         this.diagramSqls = new ArrayList<>();
     }
 
@@ -51,7 +48,6 @@ public class CockpitListener {
         this.client = client;
         this.diagrams = new ArrayList<>();
         this.dataSources = new ArrayList<>();
-        this.FileAlterationMonitors = new ArrayList<>();
         this.diagramSqls = new ArrayList<>();
     }
 
