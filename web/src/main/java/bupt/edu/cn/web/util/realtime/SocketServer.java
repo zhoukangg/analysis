@@ -1,5 +1,6 @@
 package bupt.edu.cn.web.util.realtime;
 
+import bupt.edu.cn.web.WebApplication;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -19,18 +20,24 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static bupt.edu.cn.web.WebApplication.getApplicationContext;
+
 @ServerEndpoint(value = "/socketServer/{cockpitId}")
 @Component
 public class SocketServer{
 
-	private static ApplicationContext applicationContext;
+//	private static ApplicationContext applicationContext;
 	rtAction rtaction;
-
-	public static void setApplicationContext(ApplicationContext applicationContext){
-		SocketServer.applicationContext = applicationContext;
-	}
+//
+//	public static void setApplicationContext(ApplicationContext applicationContext){
+//		SocketServer.applicationContext = applicationContext;
+//	}
 
 	private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
+
+	public static CopyOnWriteArraySet<CockpitListener> getSocketServers() {
+		return socketServers;
+	}
 
 	/**
 	 *
@@ -65,7 +72,7 @@ public class SocketServer{
 	 */
 	@OnOpen
 	public void open(Session session, @PathParam(value="cockpitId")int cockpitId){
-		rtaction = applicationContext.getBean(rtAction.class);
+		rtaction = getApplicationContext().getBean(rtAction.class);
 		logger.info("监听CockpitIdL：" + cockpitId + "!!!!!");
 		this.session = session;
 		CockpitListener cpl = new CockpitListener(new Client(cockpitId, session));
