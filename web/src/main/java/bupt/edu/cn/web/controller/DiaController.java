@@ -11,10 +11,7 @@ import bupt.edu.cn.web.repository.DiagramSQLRepository;
 import bupt.edu.cn.web.service.DiagramService;
 import bupt.edu.cn.web.service.NewOptionService;
 import bupt.edu.cn.web.service.QueryService;
-import bupt.edu.cn.web.util.QueryRoute;
-import bupt.edu.cn.web.util.SQLGenerate;
-import bupt.edu.cn.web.util.StringUtil;
-import bupt.edu.cn.web.util.chartsBase;
+import bupt.edu.cn.web.util.*;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -294,16 +291,21 @@ public class DiaController {
         String clas ="";
         if (dimArr.length == 0){
             clas = "-2"; //指标卡类型
+            diagramSql.setChartType(-2);
         }
         if (dimArr.length == 1 && meaArr.size() >1){
             clas = "4"; //雷达图
+            diagramSql.setChartType(4);
         }else if (dimArr.length == 1 && meaArr.size() ==1){
             clas = "2"; //面积图
+            diagramSql.setChartType(2);
         }else if (dimArr.length == 1 && meaArr.size() == 0){
             clas = "-1"; //只有横轴的半成品图
+            diagramSql.setChartType(-1);
         }
         if(dimArr.length > 1){
             clas = "-3"; //数据表格类型
+            diagramSql.setChartType(-3);
         }
         JSONObject re = new JSONObject();
         Diagram diagram = new Diagram();
@@ -323,96 +325,10 @@ public class DiaController {
 
             //整理数据格式
             //构造列结构
-            List<String> cowList = new ArrayList<>(Arrays.asList(dimArr));
-            List<String> rowList = new ArrayList<>(Arrays.asList(rowArr));
-            cowList.removeAll(rowList);
-            com.alibaba.fastjson.JSONArray cowJson = new com.alibaba.fastjson.JSONArray();
-            for (int i = 0;i<listJson.size();i++){
-                com.alibaba.fastjson.JSONArray now = cowJson;
-                for (int j = 0;j<cowList.size();j++){
-                    String value;
-                    if(listJson.get(i).containsKey(cowList.get(j)))
-                        value = listJson.get(i).get(cowList.get(j)).toString();
-                    else{
-                        value=listJson.get(i).get(listJson.get(i).keySet().iterator().next().toString()).toString();
-                    }
-                    System.out.println(value);
-                    int flag = isExistInJSONArray(now,"name",value);
-                    if (flag == -1){
-                        com.alibaba.fastjson.JSONObject obj = new com.alibaba.fastjson.JSONObject();
-                        obj.put("name",value);
-                        if (j!= cowList.size()-1){
-                            com.alibaba.fastjson.JSONArray last = new com.alibaba.fastjson.JSONArray();
-                            obj.put("last",last);
-                            now.add(obj);
-                            now = last;
-                        }else {
-                            now.add(obj);
-                        }
-                    }else {
-                        now = now.getJSONObject(flag).getJSONArray("last");
-                    }
-                }
-            }
 
-            //构造行结构和并填充数据
-            List<String> mea_fun = new ArrayList<>();
-            for (int i = 0;i<meaArr.size();i++){
-                mea_fun.add(meaArr.get(i)+"_"+funArr.get(i));
-            }
-            com.alibaba.fastjson.JSONArray rowJson = new com.alibaba.fastjson.JSONArray();
-            for (int i = 0;i<listJson.size();i++){
-                com.alibaba.fastjson.JSONArray now = rowJson;
-                //构造返回数据的key值
-                String cowName;
-                if(listJson.get(i).containsKey(cowList.get(0)))
-                    cowName = listJson.get(i).get(cowList.get(0)).toString();
-                else{
-                    cowName=listJson.get(i).get(listJson.get(i).keySet().iterator().next().toString()).toString();
-                }
+            com.alibaba.fastjson.JSONArray cowJson = new GenerateTable().generateCowJSON(dimArr, rowArr, listJson);
+            com.alibaba.fastjson.JSONArray rowJson = new GenerateTable().generateRowJSON(dimArr, meaArr, funArr,rowArr,listJson);
 
-                for (int j = 1;j<cowList.size();j++){
-                    cowName = cowName + "_" + listJson.get(i).get(cowList.get(j));
-                }
-
-                System.out.println("---------listJson.get(i).toString()------------");
-                System.out.println(listJson.get(i).toString());
-                for (int j = 0;j<rowArr.length;j++){
-                    System.out.println(rowArr[j]);
-                    String value = listJson.get(i).get(rowArr[j]).toString();
-                    int flag = isExistInJSONArray(now,"name",value);
-                    if (flag == -1){
-                        com.alibaba.fastjson.JSONObject obj = new com.alibaba.fastjson.JSONObject();
-                        obj.put("name",value);
-                        if (j!= rowArr.length-1){
-                            com.alibaba.fastjson.JSONArray last = new com.alibaba.fastjson.JSONArray();
-                            obj.put("last",last);
-                            now.add(obj);
-                            now = last;
-                        }else {
-                            com.alibaba.fastjson.JSONObject last = new com.alibaba.fastjson.JSONObject();
-                            if (mea_fun.size()<1){
-                                last.put(cowName,"");
-                            }else {
-                                last.put(cowName,listJson.get(i).get(mea_fun.get(0))); //目前只考虑一个度量
-                            }
-                            obj.put("value",last);
-                            now.add(obj);
-                        }
-                    }else {
-                        if (j!= rowArr.length-1){
-                            now = now.getJSONObject(flag).getJSONArray("last");
-                        } else {
-                            com.alibaba.fastjson.JSONObject data = now.getJSONObject(flag).getJSONObject("value");
-                            if (mea_fun.size()<1){
-                                data.put(cowName,"");
-                            }else {
-                                data.put(cowName,listJson.get(i).get(mea_fun.get(0))); //目前只考虑一个度量
-                            }
-                        }
-                    }
-                }
-            }
             com.alibaba.fastjson.JSONObject op = new com.alibaba.fastjson.JSONObject();
             op.put("cows",cowJson);
             op.put("rows",rowJson);
@@ -468,66 +384,7 @@ public class DiaController {
         //获取转换前option的类型
         System.out.println(ch);
         JSONObject chOption = new JSONObject(ch);
-        int int_typeBefore = 0;
-        String typeBefore;
-        if (chOption.has("value"))
-            typeBefore = "indexcard";
-        else if (chOption.has("data") && chOption.has("dims") && chOption.has("meas"))
-            typeBefore = "excelChart";
-        else
-            typeBefore = chOption.getJSONArray("series").getJSONObject(0).getString("type");
-        switch (typeBefore){
-            case "bar":{        //判断是条形还是堆积还是柱状图
-                String xType = chOption.getJSONObject("xAxis").getString("type");
-                int seriesLength = chOption.getJSONArray("series").length();
-                if (chOption.getJSONObject("yAxis").has("data")){
-                    int_typeBefore = 6;     //条形图
-                } else if(seriesLength > 1) {
-                    int_typeBefore = 1;     //堆积图
-                } else {
-                    int_typeBefore = 0;     //柱状图
-                }
-                break;
-            }
-            case "line":{
-                //判断是面积图还是折线图
-                JSONObject itemstyle = new JSONObject(ch).getJSONArray("series").getJSONObject(0);
-                if (itemstyle.has("itemStyle")){
-                    int_typeBefore = 2;
-                }else{
-                    int_typeBefore = 7;
-                }
-                break;
-            }
-            case "pie":
-                int_typeBefore = 3;
-                break;
-            case "radar":
-                int_typeBefore = 4;
-                break;
-            case "heatmap":
-                int_typeBefore = 10;
-                break;
-            case "funnel":
-                int_typeBefore = 13;
-                break;
-            case "wordcloud":
-                int_typeBefore = 11;
-                break;
-            case "scatter":
-                int_typeBefore = 12;
-                break;
-            case "gauge":
-                int_typeBefore = 8;
-                break;
-            case "indexcard":
-                int_typeBefore = 14;
-                break;
-            case "excelChart":
-                int_typeBefore = 16;
-                break;
-            default:
-        }
+        int int_typeBefore = new chartsBase().getOptionType(chOption);
         System.out.println("typeBefore: "+int_typeBefore);
         System.out.println("typeAfter: "+diagramType);
         String str_newDiagram = new chartsBase().transDiagram(int_typeBefore,diagramType,ch);

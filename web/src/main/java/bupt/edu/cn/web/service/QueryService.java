@@ -40,6 +40,8 @@ public class QueryService {
         List<Map> listJson = new ArrayList<>();
         SparkSession spark = spSession.getSparkSession();
         try{
+            System.out.println(fileUrl);
+            System.out.println(tableName);
             Dataset<Row> ds = sparkSqlService.sparkSQL(spark,fileUrl + ".csv",tableName,sql);
             List<String> listOne = ds.toJSON().as(Encoders.STRING()).collectAsList();
             System.out.println("----------");

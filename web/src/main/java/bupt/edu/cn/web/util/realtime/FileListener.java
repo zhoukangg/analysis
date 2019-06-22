@@ -37,7 +37,11 @@ public class FileListener extends FileAlterationListenerAdaptor {
      */
     public void onFileChange(File file) {
         rtaction = getApplicationContext().getBean(rtAction.class);
-        rtaction.ChangeOption(file);
+        try {
+            rtaction.ChangeOption(file);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         log.info("[修改]:" + file.getAbsolutePath());
         SocketServer.sendAll("文件修改了");
     }

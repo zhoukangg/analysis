@@ -289,6 +289,70 @@ public class chartsBase {
         return lineOption;
     }
 
+    public int getOptionType (JSONObject chOption){
+        int int_typeBefore = 0;
+        String typeBefore;
+        if (chOption.has("value"))
+            typeBefore = "indexcard";
+        else if (chOption.has("data") && chOption.has("dims") && chOption.has("meas"))
+            typeBefore = "excelChart";
+        else
+            typeBefore = chOption.getJSONArray("series").getJSONObject(0).getString("type");
+        switch (typeBefore){
+            case "bar":{        //判断是条形还是堆积还是柱状图
+                String xType = chOption.getJSONObject("xAxis").getString("type");
+                int seriesLength = chOption.getJSONArray("series").length();
+                if (chOption.getJSONObject("yAxis").has("data")){
+                    int_typeBefore = 6;     //条形图
+                } else if(seriesLength > 1) {
+                    int_typeBefore = 1;     //堆积图
+                } else {
+                    int_typeBefore = 0;     //柱状图
+                }
+                break;
+            }
+            case "line":{
+                //判断是面积图还是折线图
+                JSONObject itemstyle = chOption.getJSONArray("series").getJSONObject(0);
+                if (itemstyle.has("itemStyle")){
+                    int_typeBefore = 2;
+                }else{
+                    int_typeBefore = 7;
+                }
+                break;
+            }
+            case "pie":
+                int_typeBefore = 3;
+                break;
+            case "radar":
+                int_typeBefore = 4;
+                break;
+            case "heatmap":
+                int_typeBefore = 10;
+                break;
+            case "funnel":
+                int_typeBefore = 13;
+                break;
+            case "wordcloud":
+                int_typeBefore = 11;
+                break;
+            case "scatter":
+                int_typeBefore = 12;
+                break;
+            case "gauge":
+                int_typeBefore = 8;
+                break;
+            case "indexcard":
+                int_typeBefore = 14;
+                break;
+            case "excelChart":
+                int_typeBefore = 16;
+                break;
+            default:
+        }
+        return int_typeBefore;
+    }
+
     private String getJSONArrayMAX(JSONArray data,int index){
         String max = data.getJSONObject(0).getJSONArray("data").getString(index);
         for (int i = 1; i < data.length();i++){
