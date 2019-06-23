@@ -131,16 +131,17 @@ public class rtAction {
         for (int i = 0;i<meaArr.size();i++){
             mea_fun.add(meaArr.get(i)+"_"+funArr.get(i));
         }
-        int int_typeBefore = new chartsBase().getOptionType(new JSONObject(oldOption));     //需要转成的option类型
-        if (clas == "-3"){
+        if (clas.equals("-3")){
             String[] rowArr = rows.split(",");
             com.alibaba.fastjson.JSONArray cowJson = new GenerateTable().generateCowJSON(dimArr, rowArr, listJson);
             com.alibaba.fastjson.JSONArray rowJson = new GenerateTable().generateRowJSON(dimArr, meaArr, funArr,rowArr,listJson);
             JSONObject op = new JSONObject();
             op.put("cows",cowJson);
             op.put("rows",rowJson);
+            op.put("row", rows);
             oldDiagram.setChart(op.toString());
         }else {
+            int int_typeBefore = new chartsBase().getOptionType(new JSONObject(oldOption));     //需要转成的option类型
             JSONObject jo = newoptionService.newcreateOptionSpark(dimArr,mea_fun,listJson);
             System.out.println("+++++++++");
             System.out.println(jo);
