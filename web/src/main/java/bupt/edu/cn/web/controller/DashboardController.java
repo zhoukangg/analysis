@@ -32,7 +32,7 @@ public class DashboardController {
     DiagramRepository diagramRepository;
 
     @RequestMapping(value = "/saveCockpit", method = RequestMethod.POST)
-    public ReturnModel saveCockpit(String cockpitId, String diagramsIDs, String name, String userId, String info, String layoutConf,
+    public ReturnModel saveCockpit(String cockpitId, String diagramsIDs, String name, String userId, String info, String layoutConf, Boolean realtime,
                                    HttpServletResponse response, HttpServletRequest request){
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
@@ -59,6 +59,7 @@ public class DashboardController {
         cockpit.setDiagramids(diagramsIDs);
         cockpit.setInfo(info);
         cockpit.setLayoutconf(layoutConf);
+        cockpit.setRealtime(realtime);
         cockpitRepository.saveAndFlush(cockpit);
         result.setResult(true);
         return result;
