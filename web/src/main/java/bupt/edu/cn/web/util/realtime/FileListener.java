@@ -41,7 +41,7 @@ public class FileListener extends FileAlterationListenerAdaptor {
             e.printStackTrace();
         }
         log.info("[修改]:" + file.getAbsolutePath());
-        SocketServer.sendAll("文件修改了");
+        SocketServer.sendAll("");
     }
 
     /**

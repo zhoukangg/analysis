@@ -233,7 +233,7 @@ public class DiagramController {
 
         ReturnModel result = new ReturnModel();
         //修改saved字段为true
-        Diagram newDiagram = diagramService.saveDiagram(diagramId,userId,diagramName,option);
+        Diagram newDiagram = diagramService.saveDiagram(diagramId,userId,diagramName,classificaion,option);
         //判断是否修改成功
         if (!diagramService.isEmptyDiagram(newDiagram))
             result.setResult(true);
