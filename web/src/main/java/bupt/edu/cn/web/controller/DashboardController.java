@@ -2,20 +2,16 @@ package bupt.edu.cn.web.controller;
 
 import bupt.edu.cn.web.common.ReturnModel;
 import bupt.edu.cn.web.pojo.Cockpit;
-import bupt.edu.cn.web.pojo.Dashboard;
 import bupt.edu.cn.web.pojo.Diagram;
 import bupt.edu.cn.web.repository.CockpitRepository;
-import bupt.edu.cn.web.repository.DashboardRepository;
 import bupt.edu.cn.web.repository.DiagramRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
 
 /**
  * graphIds 记录图表的id列表
