@@ -239,8 +239,8 @@ public class DiaController {
         String sql;
 
         String drillFileNameJudge = "-1";
-//        String drillpath = "/root/zhoukang/projectFile/";
-        String drillpath = "/Users/user1/Desktop/";
+        String drillpath = "/root/zhoukang/projectFile/";
+//        String drillpath = "/Users/user1/Desktop/";
         if (meaArr.size() > 0 && funArr.size() > 0 && dimArr.length ==1)
             drillFileNameJudge =tableName + "-" + meaArr.get(0) + "_" + funArr.get(0) + "-" + dimArr[0];
         // 存储计算结果
