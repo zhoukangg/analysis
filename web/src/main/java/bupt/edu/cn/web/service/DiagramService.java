@@ -91,7 +91,7 @@ public class DiagramService {
      * @param userId
      * @return
      */
-    public Diagram saveDiagram(String diagramId, String userId , String diagramName, String option) {
+    public Diagram saveDiagram(String diagramId, String userId , String diagramName, String classificaion, String option) {
         //根据id查找Diagram
         //java8 Optional 类是一个可以为null的容器对象。如果值存在则isPresent()方法会返回true，调用get()方法会返回该对象。
         Optional<Diagram> diagram;
@@ -108,6 +108,7 @@ public class DiagramService {
         //赋值
         newDiagram.setUpdateTime(new Date());
         newDiagram.setSaved("true");
+        newDiagram.setClassification(classificaion);
         newDiagram.setChart(option);
         newDiagram.setName(diagramName);
         diagramRepository.saveAndFlush(newDiagram);

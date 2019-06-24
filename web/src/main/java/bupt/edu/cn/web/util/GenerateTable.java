@@ -45,6 +45,7 @@ public class GenerateTable {
         //构造行结构和并填充数据
         List<String> cowList = new ArrayList<>(Arrays.asList(dimArr));
         List<String> rowList = new ArrayList<>(Arrays.asList(rowArr));
+        cowList.removeAll(rowList);
         List<String> mea_fun = new ArrayList<>();
         for (int i = 0; i < meaArr.size(); i++) {
             mea_fun.add(meaArr.get(i) + "_" + funArr.get(i));

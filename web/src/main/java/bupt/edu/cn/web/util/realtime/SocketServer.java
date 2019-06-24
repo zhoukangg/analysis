@@ -16,6 +16,9 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -50,6 +53,10 @@ public class SocketServer{
 	 */
 	private Session session;
 
+
+	public static Map<String, FileAlterationMonitor> FileAlterationMonitors = new ConcurrentHashMap<>();
+	public static Map<String, Integer> FilesCount = new ConcurrentHashMap<>();
+
 	/**
 	 *
 	 * 服务端的cockpitId,因为用的是set，每个客户端的cockpitId必须不一样，否则会被覆盖。
@@ -79,12 +86,7 @@ public class SocketServer{
 //		new rtAction().getAllPath(cpl);
 		rtaction.getAllPath(cpl);
 		socketServers.add(cpl);
-		if(socketServers.size()==1){
-			observerFile(cpl);
-		}
-		else{
-			logger.info("文件已经处于监听状态");
-		}
+		observerFile(cpl);
 		logger.info("客户端:【{}】连接成功",cockpitId);
 	}
 
@@ -92,6 +94,12 @@ public class SocketServer{
 		try {
 			// 创建过滤器
 			for (int i = 0; i < cpl.diagrams.size(); i++) {
+				boolean flag = true;
+				String keyName = cpl.dataSources.get(i).getFileUrl();
+				if (FilesCount.containsKey(keyName)){
+					FilesCount.put(keyName,FilesCount.get(keyName)+1);
+					continue;
+				}
 				String[] cut = cpl.dataSources.get(i).getFileUrl().split("\\/");
 				String filename = cut[cut.length-1];
 				// 监控目录
@@ -112,8 +120,9 @@ public class SocketServer{
 				//创建文件变化监听器
 				logger.info("开始监听文件");
 				monitor = new FileAlterationMonitor(interval, observer);
-				cpl.FileAlterationMonitors.add(monitor);
 				// 开始监控
+				FilesCount.put(keyName,1);
+				FileAlterationMonitors.put(keyName,monitor);
 				monitor.start();
 			}
 		}catch (Exception e){
@@ -150,15 +159,31 @@ public class SocketServer{
 			if (cockpitListener.client.getSession().getId().equals(session.getId())) {
 				logger.info("客户端:【{}】断开连接",cockpitListener.client.getCockpitId());
 				socketServers.remove(cockpitListener);
-				// 关闭监控
-				try {
-					for (int i = 0; i < cockpitListener.FileAlterationMonitors.size(); i++) {
-						monitor.stop();
-						logger.info("关闭监听器" + i);
+
+				cockpitListener.dataSources.forEach(ds->{
+					if(FilesCount.get(ds.getFileUrl())<=1){
+						FilesCount.remove(ds.getFileUrl());
+						try{
+							FileAlterationMonitors.get(ds.getFileUrl()).stop();
+							FileAlterationMonitors.remove(ds.getFileUrl());
+						}catch (Exception e){
+							e.printStackTrace();
+						}
+
+					}else {
+						FilesCount.put(ds.getFileUrl(),FilesCount.get(ds.getFileUrl())-1);
 					}
-				}catch (Exception e){
-					logger.info("关闭监听器出错");
-				}
+
+				});
+//				// 关闭监控
+//				try {
+//					for (int i = 0; i < cockpitListener.FileAlterationMonitors.size(); i++) {
+//						monitor.stop();
+//						logger.info("关闭监听器" + i);
+//					}
+//				}catch (Exception e){
+//					logger.info("关闭监听器出错");
+//				}
 			}
 		});
 	}

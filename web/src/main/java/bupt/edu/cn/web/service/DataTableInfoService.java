@@ -202,10 +202,8 @@ public class DataTableInfoService {
                 dims.add(nextLine[i]);
             }
         }
-
         result.put("dims", dims.toArray());
         result.put("meas", meas.toArray());
-
         return result;
     }
 

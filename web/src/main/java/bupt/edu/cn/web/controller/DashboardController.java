@@ -5,6 +5,8 @@ import bupt.edu.cn.web.pojo.Cockpit;
 import bupt.edu.cn.web.pojo.Diagram;
 import bupt.edu.cn.web.repository.CockpitRepository;
 import bupt.edu.cn.web.repository.DiagramRepository;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,13 +30,13 @@ public class DashboardController {
     DiagramRepository diagramRepository;
 
     @RequestMapping(value = "/saveCockpit", method = RequestMethod.POST)
-    public ReturnModel saveCockpit(String cockpitId, String diagramsIDs, String name, String userId, String info,
+    public ReturnModel saveCockpit(String cockpitId, String diagramIDs, String name, String userId, String info, String layoutConf, Boolean realtime, String tableDashboard,
                                    HttpServletResponse response, HttpServletRequest request){
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
         System.out.println("----------saveCockpit-----------");
         System.out.println("cockpitId = " + cockpitId);
-        System.out.println("diagramsIDs = " + diagramsIDs);
+        System.out.println("diagramsIDs = " + diagramIDs);
         System.out.println("name = " + name);
         System.out.println("info = " + info);
         System.out.println("userId = " + userId);
@@ -52,8 +54,11 @@ public class DashboardController {
             }
         }
         cockpit.setName(name);
-        cockpit.setDiagramids(diagramsIDs);
+        cockpit.setDiagramids(diagramIDs);
         cockpit.setInfo(info);
+        cockpit.setLayoutconf(layoutConf);
+        cockpit.setRealtime(realtime);
+        cockpit.setTabledashboard(tableDashboard);
         cockpitRepository.saveAndFlush(cockpit);
         result.setResult(true);
         return result;
@@ -66,16 +71,13 @@ public class DashboardController {
         System.out.println("----------getCockpitByUserId-----------");
         System.out.println("userId = " + userId);
         ReturnModel result = new ReturnModel();
-//        +++++++++++++++++++++++++++++++++++++++++++
-//        try {
-//            result.setDatum(cockpitRepository.findAllByUserId(userId));
-//            result.setResult(true);
-//        }catch (Exception e){
-//            result.setResult(false);
-//            result.setReason(e.toString());
-//        }
-//        +++++++++++++++++++++++++++++++++++++++++++
-
+        try {
+            result.setDatum(cockpitRepository.findAllByUserId(userId));
+            result.setResult(true);
+        }catch (Exception e){
+            result.setResult(false);
+            result.setReason(e.toString());
+        }
         return result;
     }
 
@@ -122,13 +124,7 @@ public class DashboardController {
             result.setResult(false);
             result.setReason(e.toString());
         }
-        String[] diagramsId = cockpit.getDiagramids().split(",");
-        Diagram[] diagramArr = new Diagram[diagramsId.length];
-        for (int i = 0; i < diagramsId.length; i++) {
-            Diagram diagram = diagramRepository.findByIdEquals(Long.valueOf(diagramsId[i]));
-            diagramArr[i] = diagram;
-        }
-        result.setDatum(diagramArr);
+        result.setDatum(cockpit);
         return result;
     }
 

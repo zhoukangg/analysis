@@ -330,6 +330,7 @@ public class DiaController {
             com.alibaba.fastjson.JSONArray rowJson = new GenerateTable().generateRowJSON(dimArr, meaArr, funArr,rowArr,listJson);
 
             com.alibaba.fastjson.JSONObject op = new com.alibaba.fastjson.JSONObject();
+            op.put("row",rows);
             op.put("cows",cowJson);
             op.put("rows",rowJson);
             re.put("option",op);

@@ -15,6 +15,7 @@ import bupt.edu.cn.web.util.GenerateTable;
 import bupt.edu.cn.web.util.StringUtil;
 import bupt.edu.cn.web.util.chartsBase;
 import bupt.edu.cn.web.util.realtime.SocketServer;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,10 +58,10 @@ public class rtAction {
             String[] result = cp.getDiagramids().split(",");
             String[] pathResult = new String[result.length];
             for (int i = 0; i < result.length; i++) {
+                System.out.println("开始任务" + i);
                 cpl.diagrams.add(diagramRepository.findByIdEquals(Long.valueOf(result[i])));
                 DiagramSql dsql = diagramSQLRepository.findByDiagramid(Long.valueOf(result[i])).get(0);
                 cpl.diagramSqls.add(dsql);
-                System.out.println("Pring" + dsql.getId());
                 DataSource dataSource = dataSourceRepository.findById(Integer.valueOf(dsql.getDataSourceId())).get();
                 cpl.dataSources.add(dataSource);
                 pathResult[i] = dataSource.getFileUrl();
@@ -76,6 +77,7 @@ public class rtAction {
         CopyOnWriteArraySet<CockpitListener> socketServers = SocketServer.getSocketServers();
         socketServers.forEach(cockpitListener ->{
             for (int i = 0; i < cockpitListener.diagrams.size(); i++) {
+                System.out.println("开始文件改变任务" + i);
                 String fileUrl = cockpitListener.dataSources.get(i).getFileUrl();
                 String tableName = cockpitListener.dataSources.get(i).getFileName().split("\\.")[0];
                 if (file.getAbsolutePath().equals(fileUrl)){
@@ -84,9 +86,12 @@ public class rtAction {
                     List<Map> listJson = queryService.getQueryDataWithDate(fileUrl, tableName, sql);
                     Diagram oldDiagram = cockpitListener.diagrams.get(i);
                     generateOption(listJson, oldDiagram, cockpitListener.diagramSqls.get(i));
+                    System.out.println("-----------");
+                    System.out.println(cockpitListener.diagrams.get(i).getChart());
                     diagramRepository.saveAndFlush(cockpitListener.diagrams.get(i));
                 }
             }
+            updateCockpit(cockpitListener.cockpitId);
         });
     }
 
@@ -126,28 +131,68 @@ public class rtAction {
         for (int i = 0;i<meaArr.size();i++){
             mea_fun.add(meaArr.get(i)+"_"+funArr.get(i));
         }
-        int int_typeBefore = new chartsBase().getOptionType(new JSONObject(oldOption));     //需要转成的option类型
-        if (clas == "-3"){
+        if (clas.equals("-3")){
             String[] rowArr = rows.split(",");
             com.alibaba.fastjson.JSONArray cowJson = new GenerateTable().generateCowJSON(dimArr, rowArr, listJson);
             com.alibaba.fastjson.JSONArray rowJson = new GenerateTable().generateRowJSON(dimArr, meaArr, funArr,rowArr,listJson);
             JSONObject op = new JSONObject();
             op.put("cows",cowJson);
             op.put("rows",rowJson);
+            op.put("row", rows);
             oldDiagram.setChart(op.toString());
         }else {
+            int int_typeBefore = new chartsBase().getOptionType(new JSONObject(oldOption));     //需要转成的option类型
             JSONObject jo = newoptionService.newcreateOptionSpark(dimArr,mea_fun,listJson);
-            int nowType = 0;
-            if (clas == "-2"){
+            System.out.println("+++++++++");
+            System.out.println(jo);
+            System.out.println(clas + " " + int_typeBefore);
+            if (clas.equals("-2")){
+                System.out.println("+++++++++");
                 oldDiagram.setChart(jo.toString());
-            }else if (clas == "4"){     //从雷达图转为数据库中存的图
+            }else if (clas.equals("4")){     //从雷达图转为数据库中存的图
                 String str_newDiagram = new chartsBase().transDiagram(4,int_typeBefore,jo.toString());
-                diagramService.updateDiagram(oldDiagram.getId() + "", oldDiagram.getName(), str_newDiagram, "5", oldDiagram.getUserId() + "");
-            }else if (clas == "2"){     //从面积图转为数据库中存的图
+                System.out.println("------");
+                jo = new JSONObject(str_newDiagram);
+//                diagramService.updateDiagram(oldDiagram.getId() + "", oldDiagram.getName(), str_newDiagram, "5", oldDiagram.getUserId() + "");
+            }else if (clas.equals("2")){     //从面积图转为数据库中存的图
                 String str_newDiagram = new chartsBase().transDiagram(2,int_typeBefore,jo.toString());
-                diagramService.updateDiagram(oldDiagram.getId() + "", oldDiagram.getName(), str_newDiagram, "5", oldDiagram.getUserId() + "");
+//                diagramService.updateDiagram(oldDiagram.getId() + "", oldDiagram.getName(), str_newDiagram, "5", oldDiagram.getUserId() + "");
+                System.out.println("=-=-=-=-=-=");
+                System.out.println(jo);
+                jo = new JSONObject(str_newDiagram);
             }
+            oldDiagram.setChart(jo.toString());
         }
         oldDiagram.setUpdateTime(new Date());
+    }
+
+    public void updateCockpit(int cockpitId){
+        Cockpit cockpit = cockpitRepository.findById(cockpitId);
+        JSONArray layoutConf = new JSONArray(cockpit.getLayoutconf());
+        JSONArray tableDashboard = new JSONArray(cockpit.getTabledashboard());
+        String[] diagramsIDs = cockpit.getDiagramids().split(",");
+        int m = 0;      // layoutConf索引
+        int n = 0;      // tableDashboard索引
+        JSONArray layoutArr = new JSONArray();
+        JSONArray tableArr = new JSONArray();
+        for (int i = 0; i < diagramsIDs.length; i++){
+            Diagram temp = diagramRepository.findByIdEquals(Long.valueOf(diagramsIDs[i]));
+            if (temp.getClassification().equals("-3")){     //遍历tableDashboard
+                System.out.println("TABLE");
+                JSONObject jot = tableDashboard.getJSONObject(n);
+                jot.put("tabOption", new JSONObject(temp.getChart()));
+                tableArr.put(jot);
+                n++;
+            }else {
+                System.out.println("CHART");
+                JSONObject jot2 = layoutConf.getJSONObject(m);
+                jot2.put("choseOption", new JSONObject(temp.getChart()));
+                layoutArr.put(jot2);
+                m++;
+            }
+        }
+        cockpit.setTabledashboard(tableArr.toString());
+        cockpit.setLayoutconf(layoutArr.toString());
+        cockpitRepository.saveAndFlush(cockpit);
     }
 }
