@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
+import static bupt.edu.cn.web.util.FileUtil.getCSVDataSourceByPath;
+
 @RestController
 public class DataSourceController {
 
@@ -147,13 +149,25 @@ public class DataSourceController {
         //更新
         if(dataSourceService.updateDataSource()==false){
             System.out.println("更新数据源失败");
-            result.setResult(false);
             result.setReason("更新数据源失败");
-            return result;
         }
-        //查询
+        //查询mysql中的记录
+        List<DataSource> dataSources = new ArrayList<>();
+        try {
+            dataSources.addAll(dataSourceRepository.findAll());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        //查询本地具体文件夹下的csv表
+        try {
+            ;
+            dataSources.addAll(getCSVDataSourceByPath("/home/jsw-data-Analysis/elt/uncleaned"));
+            dataSources.addAll(getCSVDataSourceByPath("/home/jsw-data-Analysis/elt/cleaned"));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         result.setResult(true);
-        result.setDatum(dataSourceRepository.findAll());
+        result.setDatum(dataSources);
         return result;
     }
 
