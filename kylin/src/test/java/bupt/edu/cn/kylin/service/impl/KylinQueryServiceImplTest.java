@@ -25,7 +25,7 @@ public class KylinQueryServiceImplTest {
     @Test
     public void listQueryableTables() {
         kqs.login("ADMIN","KYLIN");
-        String str = kqs.listQueryableTables("learn_kylin");
+        String str = kqs.listQueryableTables("CREATE_CUBE");
         System.out.println(str);
     }
 

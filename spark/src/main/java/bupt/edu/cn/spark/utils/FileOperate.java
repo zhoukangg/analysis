@@ -98,7 +98,7 @@ public class FileOperate {
                 if (f.getName().equals(fileName))
                     flag = true;
         }catch (Exception e){
-            e.printStackTrace();
+            System.out.println(e.toString());
         }
         return flag;
     }

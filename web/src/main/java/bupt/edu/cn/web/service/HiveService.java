@@ -14,7 +14,9 @@ public class HiveService {
     private  String driverName = "org.apache.hive.jdbc.HiveDriver";
     // 默认就是10000端口，ip地址使用hive服务器的
     private  String url = "jdbc:hive2://10.108.211.130:10000/";
+//    private  String url = "jdbc:hive2://10.108.208.191:10000/";
     // hive连接的用户名和密码，默认就算是下面这两个
+
     private  String user = "hive";
     private  String password = "hive";
 
@@ -95,18 +97,21 @@ public class HiveService {
 //    }
 
     // 查询所有数据库
-    public  void showDatabases() throws Exception {
+    public List<String> showDatabases() throws Exception {
         //连接
         Connection cn = init();
         Statement st = cn.createStatement();
         //查询
         String sql = "show databases";
         ResultSet rs = st.executeQuery(sql);
+        List<String> result= new ArrayList<>();
         while (rs.next()) {
+            result.add(rs.getString(1));
             System.out.println(rs.getString(1));
         }
         //释放
         destory(cn, st, rs);
+        return result;
     }
 
     // 查询所有表
@@ -125,6 +130,15 @@ public class HiveService {
         //释放
         destory(cn, st, rs);
         return result;
+    }
+
+    public static void main(String[] args) {
+        try {
+            new HiveService().showDatabases();
+        }catch (Exception e){
+
+        }
+
     }
 
     // 查看表结构

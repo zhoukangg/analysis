@@ -30,7 +30,7 @@ public class SQLGenerate {
         System.out.println(factTableSplit.length);
         String factTableName = factTableSplit[1];
         System.out.println(factTableName);
-        tables = factTable;
+        tables = factTable.split("\\.")[1];
         sql1 = "select " + factTableName + ".* ";
         sql2 = "from " + factTable +" ";
 
@@ -40,6 +40,7 @@ public class SQLGenerate {
             JSONObject lookup = lookups.getJSONObject(i);
             String table = lookup.getString("table");
             String alias = lookup.getString("alias");
+//            table = table.split(".")[0]+"."+alias;
 
 //            String[] tableSplit = table.split("\\.");
 //            String tableName = tableSplit[1];
@@ -50,7 +51,7 @@ public class SQLGenerate {
 //            System.out.println(jo.get("primary_key").toString().getClass());
             String[] primary_key = (jo.get("primary_key").toString().substring(1,jo.get("primary_key").toString().length()-1)).split(",");
             String[] foreign_key = (jo.get("foreign_key").toString().substring(1,jo.get("foreign_key").toString().length()-1)).split(",");
-            tables = tables + "," + table ;
+            tables = tables + "," + alias ;
             sql2 = sql2 + type + " join " + table+" "+alias + " on ";
             sql2 = sql2 + primary_key[0].substring(1,primary_key[0].length() - 1)+"="+foreign_key[0].substring(1,foreign_key[0].length() - 1)+" ";
             if (primary_key.length>1){
@@ -61,6 +62,11 @@ public class SQLGenerate {
         }
         SQL = sql1 + sql2;
         String[] result = new String[2];
+        // default总报错 替换掉
+        System.out.println(SQL);
+        SQL = SQL.replace("DEFAULT.","");
+        System.out.println("--------------替换DEFAULT.");
+        System.out.println(SQL);
         result[0] = SQL;
         result[1] = tables;
         return result;
@@ -126,10 +132,15 @@ public class SQLGenerate {
                     }
                     meaString += (fun.get(mea.size() - 1)+"(`" + mea.get(mea.size() - 1) + "`) as `" + mea.get(mea.size() - 1)+"_"+fun.get(mea.size()-1)+"`");
                 }
-
-                hdl = "select " + meaString + ","+ dimString + hdl + dimString + " limit "+limit;
+                if(limit == null || limit.equals(""))
+                    hdl = "select " + meaString + ","+ dimString + hdl + dimString;
+                else
+                    hdl = "select " + meaString + ","+ dimString + hdl + dimString + " limit "+limit;
             }else {
-                hdl = "select " + dimString  + hdl + dimString + " limit "+limit;
+                if(limit == null || limit.equals(""))
+                    hdl = "select " + dimString  + hdl + dimString;
+                else
+                    hdl = "select " + dimString  + hdl + dimString + " limit "+limit;
             }
         }else if (fileType.equals("FALT")){
             if (routeStr.startsWith("kylin")){ //生成kylin SQL
@@ -160,10 +171,15 @@ public class SQLGenerate {
                         }
                         meaString += (fun.get(mea.size() - 1)+"(" + mea.get(mea.size() - 1) + ") ");
                     }
-
-                    hdl = "select " + meaString + ","+ dimString + hdl + dimString + " limit "+limit;
+                    if (limit == null || limit.equals(""))
+                        hdl = "select " + meaString + ","+ dimString + hdl + dimString;
+                    else
+                        hdl = "select " + meaString + ","+ dimString + hdl + dimString + " limit "+limit;
                 }else {
-                    hdl = "select " + dimString  + hdl + dimString + " limit "+limit;
+                    if (limit == null || limit.equals(""))
+                        hdl = "select " + dimString  + hdl + dimString;
+                    else
+                        hdl = "select " + dimString  + hdl + dimString + " limit "+limit;
                 }
             }else {  //生成宽表 hive SQL
                 hdl = " from " + fileUrl.split(" from ")[1] + " group by ";
@@ -192,10 +208,15 @@ public class SQLGenerate {
                         }
                         meaString += (fun.get(mea.size() - 1)+"(" + mea.get(mea.size() - 1) + ") as `" + mea.get(mea.size() - 1)+"_"+fun.get(mea.size()-1)+"`");
                     }
-
-                    hdl = "select " + meaString + ","+ dimString + hdl + dimString + " limit "+limit;
+                    if (limit == null || limit.equals(""))
+                        hdl = "select " + meaString + ","+ dimString + hdl + dimString;
+                    else
+                        hdl = "select " + meaString + ","+ dimString + hdl + dimString + " limit "+limit;
                 }else {
-                    hdl = "select " + dimString  + hdl + dimString + " limit "+limit;
+                    if (limit == null || limit.equals(""))
+                        hdl = "select " + dimString  + hdl + dimString;
+                    else
+                        hdl = "select " + dimString  + hdl + dimString + " limit "+limit;
                 }
             }
 
@@ -228,10 +249,15 @@ public class SQLGenerate {
                     }
                     meaString += (fun.get(mea.size() - 1)+"(" + mea.get(mea.size() - 1) + ") as " + mea.get(mea.size() - 1)+"_"+fun.get(mea.size()-1));
                 }
-
-                hdl = "select " + meaString + ","+ dimString + hdl + dimString + " limit "+limit;
+                if (limit == null || limit.equals(""))
+                    hdl = "select " + meaString + ","+ dimString + hdl + dimString;
+                else
+                    hdl = "select " + meaString + ","+ dimString + hdl + dimString + " limit "+limit;
             }else {
-                hdl = "select " + dimString  + hdl + dimString + " limit "+limit;
+                if (limit == null || limit.equals(""))
+                    hdl = "select " + dimString  + hdl + dimString;
+                else
+                    hdl = "select " + dimString  + hdl + dimString + " limit "+limit;
             }
         }
 

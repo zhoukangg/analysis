@@ -9,6 +9,7 @@ import scala.Serializable;
 
 import java.util.regex.*;
 
+import static bupt.edu.cn.spark.conf.consist.DRILLPATH;
 import static bupt.edu.cn.spark.utils.FileOperate.combineCSV;
 
 @Service
@@ -38,8 +39,7 @@ public class SparkSqlServiceImpl implements Serializable {
                     Dataset<Row> dataDS = DatetableTrans.transDS(twoColumnData, i); //解析出年月日和季度
                     sqlDF = twoColumnData.join(dataDS,twoColumnData.col(twoColumnData.columns()[i]).equalTo(dataDS.col("stringTime")),"left_outer").drop("stringTime");//将年月季度日4列加入Dataset中
                     sqlDF = sqlDF.drop(sqlDF.columns()[i]);     //删除掉默认的2017-1-1的列
-//                    String pathName = "/Users/kang/D/projectFile/";
-                    String pathName = "/root/zhoukang/projectFile/";
+                    String pathName = DRILLPATH;
                     String saveName = pathName + tableName + "-" + colName + "-" + rowName;
                     System.out.println("Save path is :" + saveName);
                     sqlDF.write().option("header", "true").csv(saveName);

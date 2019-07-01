@@ -1,5 +1,6 @@
 package bupt.edu.cn.kylin.service.impl;
 
+import bupt.edu.cn.kylin.conf.KylinConf;
 import bupt.edu.cn.kylin.service.KylinQueryService;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import java.net.URL;
 public class KylinQueryServiceImpl implements KylinQueryService {
 
     private static String encoding;
-    private static final String baseURL = "http://10.108.208.191:7070/kylin/api";
+    private static final String baseURL = KylinConf.BASEURL;
 
     public String login(String user,String passwd){
         String method = "POST";

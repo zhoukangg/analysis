@@ -21,6 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
+import static bupt.edu.cn.web.conf.consist.DRILLPATH;
+
 @RestController
 public class DiaController {
 
@@ -156,6 +158,11 @@ public class DiaController {
         System.out.println("-----------参数4：tableName = " + tableName);
         System.out.println("-----------参数5：fileType = " + fileType);
         System.out.println("-----------参数6：rows = " + rows);
+        System.out.println("-----------参数6：limit = " + limit);
+        if(rows == null )
+            rows = "";
+        if (limit == null)
+            limit = "";
 
         if (dims.length() == 0 || dims.charAt(dims.length()-1) == ','){
             dims = dims + rows;
@@ -226,6 +233,7 @@ public class DiaController {
         }
         //路由
         String routeStr = queryRoute.route(Arrays.asList(dimArr), funArr, meaArr,tableName,fileUrl);
+        System.out.println("------------查询引擎是：" + routeStr + "-------------");
         if (routeStr.equals("hive")){ //hive 查询出来列名都变成小写了
             for (int i = 0;i<dimArr.length;i++){
                 dimArr[i] = dimArr[i].toLowerCase();
@@ -239,7 +247,7 @@ public class DiaController {
         String sql;
 
         String drillFileNameJudge = "-1";
-        String drillpath = "/root/zhoukang/projectFile/";
+        String drillpath = DRILLPATH;
 //        String drillpath = "/Users/user1/Desktop/";
         if (meaArr.size() > 0 && funArr.size() > 0 && dimArr.length ==1)
             drillFileNameJudge =tableName + "-" + meaArr.get(0) + "_" + funArr.get(0) + "-" + dimArr[0];
@@ -272,7 +280,7 @@ public class DiaController {
         }
 
         Boolean drillflag = false;
-        if (listJson.size() != 0)
+        if (listJson.size() != 0 && !fileUrl.contains("select"))
             if (!listJson.get(0).containsKey(dims) && !(dimArr.length == 0 && meaArr.size()!=0) && !(dimArr.length>1&&meaArr.size()==1) && dimArr.length==1)  //用来判断是否是可以上卷下钻的
                 drillflag = true;
         if (drillflag){                             // 为上卷下钻排序并增加一个"年"的后缀
@@ -429,7 +437,7 @@ public class DiaController {
         SQLGenerate sqlGenerate = new SQLGenerate();
         String sql = "";
 //        String pathurl = "/Users/kang/D/projectFile/";
-        String pathurl = "/root/zhoukang/projectFile/";
+        String pathurl = DRILLPATH;
         sql = sqlGenerate.getWithScrollDrill(fileName, measArr, year, season, month, day);
         System.out.println("The SQL is : " + sql);
         List<Map> listJson = queryService.getQueryDataWithDate(pathurl+fileName,fileName,sql);

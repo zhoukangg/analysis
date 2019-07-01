@@ -9,7 +9,7 @@ public class HiveTest {
     // 驱动，固定的
     private static String driverName = "org.apache.hive.jdbc.HiveDriver";
     // 默认就是10000端口，ip地址使用hive服务器的
-    private static String url = "jdbc:hive2://10.108.208.191:10000/";
+    private static String url = "jdbc:hive2://10.108.211.130:10000/";
     private  static String url2 = "jdbc:hive2://10.108.211.130:10000/";
     // hive连接的用户名和密码，默认就算是下面这两个
     private static String user = "hive";

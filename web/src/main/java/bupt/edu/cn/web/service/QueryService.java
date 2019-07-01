@@ -85,7 +85,7 @@ public class QueryService {
         }else if (routeStr.equals("hive")){  //hive 查询
             try{
                 if (fileUrl.startsWith("select ")){
-                    listJson = hiveService.selectData("jdbc:hive2://10.108.208.191:10000/","default",sql);
+                    listJson = hiveService.selectData("jdbc:hive2://10.108.211.130:10000/","default",sql);
                 }else {
                     listJson = hiveService.selectData(fileUrl.split("/")[0],sql);
                 }

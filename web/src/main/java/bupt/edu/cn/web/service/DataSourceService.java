@@ -87,7 +87,7 @@ public class DataSourceService {
             }
         }else if (fileType.equals("FALT")){
             try {
-                result = hiveService.selectData("jdbc:hive2://10.108.208.191:10000/","default", fileUrl+" limit 10");
+                result = hiveService.selectData("jdbc:hive2://10.108.211.130:10000/","default", fileUrl+" limit 10");
             }catch (Exception e){
                 System.out.println("hive select error:"+e.toString());
             }
@@ -124,13 +124,20 @@ public class DataSourceService {
          */
 
         try {
-            String database = "jishengwei";//hive 数据库名称
+//            String database = "jishengwei";//hive 数据库名称
             //查出hive表
-            List<String> tableName = hiveService.showTables(database);
+            List<String> databaseNameList = hiveService.showDatabases();//hive 数据库名称
+            List<String> tableNameList = new ArrayList<>();
             List<String> tableUrl = new ArrayList<>();//hive表url
-            for (int i = 0;i<tableName.size();i++){
-                tableUrl.add(database+"/"+tableName.get(i));
+            for (int j  = 0;j<databaseNameList.size();j++){
+                String databaseNamej = databaseNameList.get(j);
+                List<String> tableNamejList = hiveService.showTables(databaseNamej);
+                tableNameList.addAll(tableNamejList);
+                for (int i = 0; i<tableNamejList.size(); i++){
+                    tableUrl.add(databaseNamej+"/"+tableNamejList.get(i));
+                }
             }
+
             Set<String> setHiveTableUrl = new HashSet<>(tableUrl); //list转set
             //查出mysql hive表记录
             List<DataSource>  dataSources = dataSourceRepository.findByFileType("HIVE");

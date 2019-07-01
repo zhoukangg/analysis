@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
+import static bupt.edu.cn.web.conf.consist.CSVDIR;
 import static bupt.edu.cn.web.util.FileUtil.getCSVDataSourceByPath;
 
 @RestController
@@ -81,12 +82,18 @@ public class DataSourceController {
         ReturnModel result = new ReturnModel();
 
         try {
-            String database = "jishengwei";//hive 数据库名称
+
             //查出hive表
-            List<String> tableName = hiveService.showTables(database);
+            List<String> databaseNameList = hiveService.showDatabases();
+            List<String> tableName = new ArrayList<>();
             List<String> tableUrl = new ArrayList<>();//hive表url
-            for (int i = 0;i<tableName.size();i++){
-                tableUrl.add(database+"/"+tableName.get(i));
+            for (int i =0; i<databaseNameList.size(); i++){
+                String databasei = databaseNameList.get(i);
+                List<String> tableiName = hiveService.showTables(databasei);
+                tableName.addAll(tableiName);
+                for (int j = 0; j<tableiName.size(); j++){
+                    tableUrl.add(databasei+"/"+tableiName.get(j));
+                }
             }
             Set<String> setHiveTableUrl = new HashSet<>(tableUrl); //list转set
             //查出mysql hive表记录
@@ -96,7 +103,7 @@ public class DataSourceController {
                 setMysqlTableUrl.add(dataSources.get(i).getFileUrl());
             }
 
-            Set<String> setResult = new HashSet<String>();
+            Set<String> setResult = new HashSet<>();
             //要删除的记录（差集）
             setResult.clear();
             setResult.addAll(setMysqlTableUrl);
@@ -120,7 +127,6 @@ public class DataSourceController {
                 dataSource.setFileName(url.split("/")[1]);
                 dataSourceRepository.saveAndFlush(dataSource);
             }
-//            hiveService.descTable("jishengwei","gd_apply_service");
         }catch (Exception e){
             System.out.println(e.toString());
             result.setResult(false);
@@ -161,8 +167,9 @@ public class DataSourceController {
         //查询本地具体文件夹下的csv表
         try {
             ;
-            dataSources.addAll(getCSVDataSourceByPath("/home/jsw-data-Analysis/elt/uncleaned"));
-            dataSources.addAll(getCSVDataSourceByPath("/home/jsw-data-Analysis/elt/cleaned"));
+//            dataSources.addAll(getCSVDataSourceByPath("/home/jsw-data-Analysis/elt/uncleaned"));
+//            dataSources.addAll(getCSVDataSourceByPath("/home/jsw-data-Analysis/elt/cleaned"));
+            dataSources.addAll(getCSVDataSourceByPath(CSVDIR));
         }catch (Exception e){
             e.printStackTrace();
         }
