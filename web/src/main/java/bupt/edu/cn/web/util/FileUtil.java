@@ -50,6 +50,28 @@ public class FileUtil {
         return files;
     }
 
+    public static ArrayList<DataSource> getCSVDataSourceContainInPath(String path, String content) {
+        ArrayList<DataSource> files = new ArrayList<>();
+        File file = new File(path);
+        File[] tempList = file.listFiles();
+
+        for (int i = 0; i < tempList.length; i++) {
+            if (tempList[i].isFile() && tempList[i].getName().endsWith(".csv")) {
+                String fileName = tempList[i].getName().substring(0,tempList[i].getName().length()-4);
+                if (!fileName.contains(content))
+                    break;
+                DataSource ds = new DataSource();
+                ds.setId(-1);
+                ds.setFileName(fileName);
+                ds.setFileType("CSV");
+                ds.setFileUrl(tempList[i].getAbsolutePath());
+                files.add(ds);
+                System.out.println(ds.getFileUrl());
+            }
+        }
+        return files;
+    }
+
     public static void main(String[] args) {
 //      举例：
         String fName = "/Users/kang/Desktop";

@@ -9,8 +9,8 @@ package bupt.edu.cn.web.conf;
 public class consist {
 
     // 数据湖数据 csv文件夹
-//    public static String CSVDIR = "/Users/kang/Desktop";
-    public static String CSVDIR = "/home/jsw-data-Analysis/elt/uncleaned";
+//    public static String[] CSVDIR = {"/Users/kang/Desktop"};
+    public static String[] CSVDIR = {"/home/jsw-data-Analysis/elt/uncleaned","/home/jsw-data-Analysis/elt/cleaned"};
     // 上卷下钻缓存目录
     public static String DRILLPATH = "/root/zhoukang/projectFile/";
 //    public static String DRILLPATH = "/Users/kang/D/projectFile/";

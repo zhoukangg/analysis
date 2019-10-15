@@ -1,5 +1,6 @@
 package bupt.edu.cn.web.service;
 
+import bupt.edu.cn.web.conf.hiveConf;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
@@ -10,15 +11,10 @@ import java.util.Map;
 
 @Service
 public class HiveService {
-    // 驱动，固定的
-    private  String driverName = "org.apache.hive.jdbc.HiveDriver";
-    // 默认就是10000端口，ip地址使用hive服务器的
-    private  String url = "jdbc:hive2://10.108.211.130:10000/";
-//    private  String url = "jdbc:hive2://10.108.208.191:10000/";
-    // hive连接的用户名和密码，默认就算是下面这两个
-
-    private  String user = "hive";
-    private  String password = "hive";
+    private  String driverName = hiveConf.DRIVERNAME;
+    private  String url = hiveConf.DATABASEURL;
+    private  String user = hiveConf.USER;
+    private  String password = hiveConf.PASSWORD;
 
     // 公共使用的变量
 //    private  Connection conn = null;
@@ -28,14 +24,14 @@ public class HiveService {
     // 加载驱动、创建默认连接
     public Connection init() throws Exception {
         Class.forName(driverName);
-        Connection conn = DriverManager.getConnection(url+"default",user,password);
+        Connection conn = DriverManager.getConnection(url + hiveConf.DEFAULTNAME, user, password);
         return conn;
     }
 
     // 加载驱动、创建指定数据库连接
     public Connection init(String database) throws Exception {
         Class.forName(driverName);
-        Connection conn = DriverManager.getConnection(url+database,user,password);
+        Connection conn = DriverManager.getConnection(url + database, user, password);
         System.out.println("hiveUrl:"+url+database);
         return conn;
     }
@@ -43,8 +39,8 @@ public class HiveService {
     // 加载驱动、创建指定数据库连接
     public Connection init(String hiveUrl, String database) throws Exception {
         Class.forName(driverName);
-        Connection conn = DriverManager.getConnection(hiveUrl+database,user,password);
-        System.out.println("hiveUrl:"+hiveUrl+database);
+        Connection conn = DriverManager.getConnection(hiveUrl + database, user, password);
+        System.out.println("hiveUrl:" + hiveUrl + database);
         return conn;
     }
 
@@ -192,7 +188,11 @@ public class HiveService {
                 if (rs.getString(i) != null){
                     columnvalue = rs.getString(i);
                 }
-                row.put(md.getColumnName(i).toString(),columnvalue.toString());
+                try{
+                    row.put(md.getColumnName(i), columnvalue.toString());
+                }catch (Exception e){
+                    System.out.println("-------hive数据预览出现一个问题---------");
+                }
             }
             listJson.add(row);
         }

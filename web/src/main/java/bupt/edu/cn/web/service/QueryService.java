@@ -3,6 +3,7 @@ package bupt.edu.cn.web.service;
 import bupt.edu.cn.kylin.service.KylinQueryService;
 import bupt.edu.cn.spark.common.SpSession;
 import bupt.edu.cn.spark.service.impl.SparkSqlServiceImpl;
+import bupt.edu.cn.web.conf.hiveConf;
 import bupt.edu.cn.web.repository.DiagramRepository;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -85,7 +86,7 @@ public class QueryService {
         }else if (routeStr.equals("hive")){  //hive 查询
             try{
                 if (fileUrl.startsWith("select ")){
-                    listJson = hiveService.selectData("jdbc:hive2://10.108.211.130:10000/","default",sql);
+                    listJson = hiveService.selectData(hiveConf.DATABASEURL,"default",sql);
                 }else {
                     listJson = hiveService.selectData(fileUrl.split("/")[0],sql);
                 }
@@ -122,9 +123,12 @@ public class QueryService {
                 System.out.println(e.toString());
             }
         }
-//        for (int i = 0;i<listJson.size();i++){
-//            System.out.println(listJson.get(i).toString());
-//        }
+        // 去空
+        for (int i = 0;i<listJson.size();i++){
+            if(null == listJson.get(i) || listJson.get(i).size() == 0){
+                listJson.remove(i);
+            }
+        }
         return  listJson;
     }
 

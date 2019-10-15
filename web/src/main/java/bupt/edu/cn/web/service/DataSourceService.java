@@ -1,6 +1,7 @@
 package bupt.edu.cn.web.service;
 
 import bupt.edu.cn.kylin.service.KylinQueryService;
+import bupt.edu.cn.web.conf.hiveConf;
 import bupt.edu.cn.web.pojo.DataSource;
 import bupt.edu.cn.web.pojo.FaltTable;
 import bupt.edu.cn.web.repository.DataSourceRepository;
@@ -87,7 +88,8 @@ public class DataSourceService {
             }
         }else if (fileType.equals("FALT")){
             try {
-                result = hiveService.selectData("jdbc:hive2://10.108.211.130:10000/","default", fileUrl+" limit 10");
+                String sqlSelect = fileUrl + " limit 10";
+                result = hiveService.selectData(hiveConf.DATABASEURL, hiveConf.DEFAULTNAME, sqlSelect);
             }catch (Exception e){
                 System.out.println("hive select error:"+e.toString());
             }
@@ -124,9 +126,10 @@ public class DataSourceService {
          */
 
         try {
-//            String database = "jishengwei";//hive 数据库名称
-            //查出hive表
             List<String> databaseNameList = hiveService.showDatabases();//hive 数据库名称
+            String[] removeDatabases = {"sys","information_schema"};
+            databaseNameList.removeAll(Arrays.asList(removeDatabases));
+            //查出hive表
             List<String> tableNameList = new ArrayList<>();
             List<String> tableUrl = new ArrayList<>();//hive表url
             for (int j  = 0;j<databaseNameList.size();j++){

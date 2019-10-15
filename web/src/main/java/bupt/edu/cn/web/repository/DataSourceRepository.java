@@ -14,7 +14,7 @@ public interface DataSourceRepository extends JpaRepository<DataSource,Integer> 
     List<DataSource> findByFileUrl(String fileUrl);
     List<DataSource> findByFileType(String filetype);
     List<DataSource> findByFileNameAndFileUrl(String fileName, String fileUrl);
-
+    List<DataSource> findByFileNameContains(String str);
     List<DataSource> findById(int id);
 
     @Transactional

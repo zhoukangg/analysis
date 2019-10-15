@@ -19,6 +19,7 @@ import java.util.*;
 
 import static bupt.edu.cn.web.conf.consist.CSVDIR;
 import static bupt.edu.cn.web.util.FileUtil.getCSVDataSourceByPath;
+import static bupt.edu.cn.web.util.FileUtil.getCSVDataSourceContainInPath;
 
 @RestController
 public class DataSourceController {
@@ -166,10 +167,48 @@ public class DataSourceController {
         }
         //查询本地具体文件夹下的csv表
         try {
-            ;
-//            dataSources.addAll(getCSVDataSourceByPath("/home/jsw-data-Analysis/elt/uncleaned"));
-//            dataSources.addAll(getCSVDataSourceByPath("/home/jsw-data-Analysis/elt/cleaned"));
-            dataSources.addAll(getCSVDataSourceByPath(CSVDIR));
+            for(int i = 0; i< CSVDIR.length;i++){
+                dataSources.addAll(getCSVDataSourceByPath(CSVDIR[i]));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        result.setResult(true);
+        result.setDatum(dataSources);
+        return result;
+    }
+
+    /**
+     * 获取所有的数据源（data_source表）接口
+     * @param response
+     * @param request
+     * @return
+     */
+    @RequestMapping("/getDataSourceContains")
+    public ReturnModel getDataSourceContains(String content, HttpServletResponse response, HttpServletRequest request){
+        // 解决Ajax跨域请求问题
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        System.out.println("----------------getDataSourceContains--------------");
+        System.out.println("----------------参数：content = " + content);
+        ReturnModel result = new ReturnModel();
+        //查询mysql中的记录
+        List<DataSource> dataSources = new ArrayList<>();
+        try {
+            int contentNum = Integer.valueOf(content);
+            try {dataSources.addAll(dataSourceRepository.findById(contentNum));}catch (Exception exc){ exc.printStackTrace(); }
+        }catch (Exception e){
+        }
+        try {
+            dataSources.addAll(dataSourceRepository.findByFileNameContains(content));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        //查询本地具体文件夹下的csv表
+        try {
+            for(int i = 0; i< CSVDIR.length;i++){
+                dataSources.addAll(getCSVDataSourceContainInPath(CSVDIR[i], content));
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
