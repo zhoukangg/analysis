@@ -158,7 +158,7 @@ public class DiaController {
         System.out.println("-----------参数4：tableName = " + tableName);
         System.out.println("-----------参数5：fileType = " + fileType);
         System.out.println("-----------参数6：rows = " + rows);
-        System.out.println("-----------参数6：limit = " + limit);
+        System.out.println("-----------参数7：limit = " + limit);
         if(rows == null )
             rows = "";
         if (limit == null)
