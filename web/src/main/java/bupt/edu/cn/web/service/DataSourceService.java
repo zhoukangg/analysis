@@ -186,7 +186,7 @@ public class DataSourceService {
         //获取cubes
         kqs.login("ADMIN","KYLIN");
         String cubeList = kqs.listCubes(0,50000,"","");
-        System.out.println(cubeList);
+        System.out.println("--------------cubeList： "+cubeList);
 
         //将jsonString 解析为json
         JSONArray cubeJsonArray;
@@ -202,7 +202,7 @@ public class DataSourceService {
             if (job.getString("status").equals("READY")){
                 //取出 model 名称和 project 名称
                 String model = job.getString("model");
-                String project = job.getString("project");
+                String project = job.get("project").toString();
 
                 //将name复制为 model 名称
                 String name = model;

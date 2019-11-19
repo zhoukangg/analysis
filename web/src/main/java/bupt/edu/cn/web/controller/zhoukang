@@ -1,0 +1,24 @@
+{ "name": "考研", "value": "10000", "symbolSize": 100, "draggable": true, "itemStyle": { "normal": { "borderColor": "rgb(27, 94, 93)", "borderWidth": 4, "shadowBlur": 100, "shadowColor": "rgb(27, 94, 93)", "color": "rgb(27, 94, 93)" } } }
+
+
+
+
+{"title":{"text":"title","left":"center"},"tooltip": {"show": true},"series":[{"type": "graph", "layout":"force", "force": {"repulsion": 500, "edgeLength": 10}, "label":{"normal":{"show":true},"data":[]}]}
+
+
+
+{title:{text:"title",left:"center"}, "tooltip":{show: true},"series":[{"type": "treemap", "label":{"normal":{"show":true}},"data":[]}]}
+
+{title:{text:"title",left:"center"}, "tooltip":{show: true},"series":[{"type": "wordCloud", "textStyle":{"normal":{"color":"#3b8dbc"},"emphasis":{"shadowBlur":10, "shadowColor": "#333"}},"data":[]}]}
+
+color: function() {return "rgb(" + [Math.round(Math.random() * 160),Math.round(Math.random() * 160),Math.round(Math.random() * 160)].join(",") + ")";}
+
+
+
+
+
+
+
+
+
+

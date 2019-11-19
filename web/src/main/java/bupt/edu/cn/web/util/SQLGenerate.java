@@ -1,6 +1,5 @@
 package bupt.edu.cn.web.util;
 
-import breeze.linalg.dim;
 import bupt.edu.cn.kylin.service.KylinQueryService;
 import org.json.JSONArray;
 import org.json.JSONObject;
