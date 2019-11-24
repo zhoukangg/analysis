@@ -14,13 +14,11 @@ import bupt.edu.cn.web.service.QueryService;
 import bupt.edu.cn.web.util.GenerateTable;
 import bupt.edu.cn.web.util.StringUtil;
 import bupt.edu.cn.web.util.chartsBase;
-import bupt.edu.cn.web.util.realtime.SocketServer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
@@ -143,7 +141,7 @@ public class rtAction {
             oldDiagram.setChart(op.toString());
         }else {
             int int_typeBefore = new chartsBase().getOptionType(new JSONObject(oldOption));     //需要转成的option类型
-            JSONObject jo = newoptionService.newcreateOptionSpark(dimArr,mea_fun,listJson);
+            JSONObject jo = newoptionService.newCreateOption(dimArr,mea_fun,listJson);
             System.out.println("+++++++++");
             System.out.println(jo);
             System.out.println(clas + " " + int_typeBefore);

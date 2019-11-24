@@ -10,7 +10,7 @@ public class HiveTest {
     private static String driverName = "org.apache.hive.jdbc.HiveDriver";
     // 默认就是10000端口，ip地址使用hive服务器的
     private static String url = "jdbc:hive2://10.108.211.130:10000/";
-    private  static String url2 = "jdbc:hive2://10.108.211.130:10000/";
+    private static String url2 = "jdbc:hive2://10.108.211.130:10000/";
     // hive连接的用户名和密码，默认就算是下面这两个
     private static String user = "hive";
     private static String password = "hive";
@@ -23,9 +23,10 @@ public class HiveTest {
     // 加载驱动、创建默认连接
     public static Connection init() throws Exception {
         Class.forName(driverName);
-        Connection conn = DriverManager.getConnection(url2+"jishengwei",user,password);
+        Connection conn = DriverManager.getConnection(url2 + "jishengwei", user, password);
         return conn;
     }
+
     // 查询所有数据库
     public static void showDatabases() throws Exception {
         //连接
@@ -40,6 +41,7 @@ public class HiveTest {
         //释放
         destory(cn, st, rs);
     }
+
     // 查询所有数据库表
     public static void showTables() throws Exception {
         //连接
@@ -54,6 +56,7 @@ public class HiveTest {
         //释放
         destory(cn, st, rs);
     }
+
     public static void selectData() throws Exception {
         //连接
         Connection cn = init();
@@ -70,8 +73,8 @@ public class HiveTest {
     }
 
     // 释放资源
-    public  static void destory(Connection conn, Statement stmt, ResultSet rs) throws Exception {
-        if ( rs != null) {
+    public static void destory(Connection conn, Statement stmt, ResultSet rs) throws Exception {
+        if (rs != null) {
             rs.close();
         }
         if (stmt != null) {
@@ -81,7 +84,8 @@ public class HiveTest {
             conn.close();
         }
     }
-        // 测试代码（每次都需要现在加载，执行万后释放）
+
+    // 测试代码（每次都需要现在加载，执行万后释放）
     public static void main(String[] args) throws Exception {
 //        showDatabases();
 //    		createTable();
@@ -89,7 +93,7 @@ public class HiveTest {
 //        showTables();
 //    		descTable();
 //    		loadData();
-    		selectData();
+        selectData();
 //    		countData();
 //    		dropTable();
 //        destory();

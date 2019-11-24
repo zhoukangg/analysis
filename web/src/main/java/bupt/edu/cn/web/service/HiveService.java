@@ -11,10 +11,10 @@ import java.util.Map;
 
 @Service
 public class HiveService {
-    private  String driverName = hiveConf.DRIVERNAME;
-    private  String url = hiveConf.DATABASEURL;
-    private  String user = hiveConf.USER;
-    private  String password = hiveConf.PASSWORD;
+    private String driverName = hiveConf.DRIVERNAME;
+    private String url = hiveConf.DATABASEURL;
+    private String user = hiveConf.USER;
+    private String password = hiveConf.PASSWORD;
 
     // 公共使用的变量
 //    private  Connection conn = null;
@@ -32,7 +32,7 @@ public class HiveService {
     public Connection init(String database) throws Exception {
         Class.forName(driverName);
         Connection conn = DriverManager.getConnection(url + database, user, password);
-        System.out.println("hiveUrl:"+url+database);
+        System.out.println("hiveUrl:" + url + database);
         return conn;
     }
 
@@ -45,7 +45,7 @@ public class HiveService {
     }
 
     // 释放资源
-    public  void destory(Connection conn,Statement stmt) throws Exception {
+    public void destory(Connection conn, Statement stmt) throws Exception {
         if (stmt != null) {
             stmt.close();
         }
@@ -53,9 +53,10 @@ public class HiveService {
             conn.close();
         }
     }
+
     // 释放资源
-    public  void destory(Connection conn,Statement stmt,ResultSet rs) throws Exception {
-        if ( rs != null) {
+    public void destory(Connection conn, Statement stmt, ResultSet rs) throws Exception {
+        if (rs != null) {
             rs.close();
         }
         if (stmt != null) {
@@ -100,7 +101,7 @@ public class HiveService {
         //查询
         String sql = "show databases";
         ResultSet rs = st.executeQuery(sql);
-        List<String> result= new ArrayList<>();
+        List<String> result = new ArrayList<>();
         while (rs.next()) {
             result.add(rs.getString(1));
             System.out.println(rs.getString(1));
@@ -118,7 +119,7 @@ public class HiveService {
         //查询
         String sql = "show tables";
         ResultSet rs = st.executeQuery(sql);
-        List<String> result= new ArrayList<>();
+        List<String> result = new ArrayList<>();
         while (rs.next()) {
             result.add(rs.getString(1));
             System.out.println(rs.getString(1));
@@ -131,26 +132,26 @@ public class HiveService {
     public static void main(String[] args) {
         try {
             new HiveService().showDatabases();
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
 
     }
 
     // 查看表结构
-    public  List<Map<String,String>> descTable(String database,String table) throws Exception {
+    public List<Map<String, String>> descTable(String database, String table) throws Exception {
         //连接
         Connection cn = init(database);
         Statement st = cn.createStatement();
         //查询
-        String sql = "desc "+table;
+        String sql = "desc " + table;
         ResultSet rs = st.executeQuery(sql);
-        List<Map<String,String>> result = new ArrayList<>();
+        List<Map<String, String>> result = new ArrayList<>();
         while (rs.next()) {
             System.out.println(rs.getString(1) + "\t" + rs.getString(2));
-            Map<String,String> rowData = new HashMap<String,String>();
-            rowData.put("name",rs.getString(1));
-            rowData.put("type",rs.getString(2));
+            Map<String, String> rowData = new HashMap<String, String>();
+            rowData.put("name", rs.getString(1));
+            rowData.put("type", rs.getString(2));
             result.add(rowData);
         }
         //释放
@@ -172,7 +173,7 @@ public class HiveService {
 //    }
 
     // 查询数据
-    public  List<Map> selectData(String database,String sql) throws Exception {
+    public List<Map> selectData(String database, String sql) throws Exception {
         //连接
         Connection cn = init(database);
         Statement st = cn.createStatement();
@@ -180,17 +181,17 @@ public class HiveService {
         ResultSet rs = st.executeQuery(sql);
         ResultSetMetaData md = rs.getMetaData(); //获得结果集结构信息,元数据
         int columnCount = md.getColumnCount();   //获得列数
-        List<Map> listJson  = new ArrayList<>();//存放数据结果
-        while (rs.next()){
+        List<Map> listJson = new ArrayList<>();//存放数据结果
+        while (rs.next()) {
             Map<String, String> row = new HashMap<>();
-            for (int i = 1; i<columnCount+1;i++){ //从1开始
+            for (int i = 1; i < columnCount + 1; i++) { //从1开始
                 String columnvalue = "null";//不考虑为null的话加入map后,map的key值都不存在了，
-                if (rs.getString(i) != null){
+                if (rs.getString(i) != null) {
                     columnvalue = rs.getString(i);
                 }
-                try{
+                try {
                     row.put(md.getColumnName(i), columnvalue.toString());
-                }catch (Exception e){
+                } catch (Exception e) {
                     System.out.println("-------hive数据预览出现一个问题---------");
                 }
             }
@@ -198,12 +199,12 @@ public class HiveService {
         }
 
         //释放
-        destory(cn, st,rs);
+        destory(cn, st, rs);
         return listJson;
     }
 
     // 查询数据
-    public  List<Map> selectData(String url,String database,String sql) throws Exception {
+    public List<Map> selectData(String url, String database, String sql) throws Exception {
         //连接
         Connection cn = init(url, database);
         Statement st = cn.createStatement();
@@ -211,22 +212,22 @@ public class HiveService {
         ResultSet rs = st.executeQuery(sql);
         ResultSetMetaData md = rs.getMetaData(); //获得结果集结构信息,元数据
         int columnCount = md.getColumnCount();   //获得列数
-        List<Map> listJson  = new ArrayList<>();//存放数据结果
-        while (rs.next()){
+        List<Map> listJson = new ArrayList<>();//存放数据结果
+        while (rs.next()) {
             Map<String, String> row = new HashMap<>();
-            for (int i = 1; i<columnCount+1;i++){ //从1开始
+            for (int i = 1; i < columnCount + 1; i++) { //从1开始
                 String columnvalue = "null";//不考虑为null的话加入map后,map的key值都不存在了，
-                if (rs.getString(i) != null){
+                if (rs.getString(i) != null) {
                     columnvalue = rs.getString(i);
                 }
                 System.out.println(columnvalue);
-                row.put(md.getColumnName(i),columnvalue);
+                row.put(md.getColumnName(i), columnvalue);
             }
             listJson.add(row);
         }
 
         //释放
-        destory(cn, st,rs);
+        destory(cn, st, rs);
         return listJson;
     }
 
@@ -241,12 +242,12 @@ public class HiveService {
 //    }
 
     // 删除数据库表
-    public  void dropTable(String database,String table) throws Exception {
+    public void dropTable(String database, String table) throws Exception {
         //连接
         Connection cn = init(database);
         Statement st = cn.createStatement();
         //查询
-        String sql = "drop table if exists "+table;
+        String sql = "drop table if exists " + table;
         st.execute(sql);
         //释放
         destory(cn, st);

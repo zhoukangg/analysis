@@ -15,6 +15,7 @@ public class DiagramService {
 
     /**
      * 根据diagramId和userId来更新Diagram
+     *
      * @param diagramId
      * @param diagramName
      * @param chart
@@ -22,19 +23,19 @@ public class DiagramService {
      * @param userId
      * @return
      */
-    public Diagram updateDiagram(String diagramId, String diagramName,String chart, String classificaion,String userId) {
+    public Diagram updateDiagram(String diagramId, String diagramName, String chart, String classificaion, String userId) {
         //根据id查找Diagram
         //java8 Optional 类是一个可以为null的容器对象。如果值存在则isPresent()方法会返回true，调用get()方法会返回该对象。
         Optional<Diagram> diagram;
         diagram = diagramRepository.findById(Long.valueOf(diagramId));
         //判断是否存在，更新/失败返回
         Diagram newDiagram;
-        if (diagram.isPresent()){
+        if (diagram.isPresent()) {
             newDiagram = diagram.get();
             //权限
             if (!newDiagram.getUserId().equals(userId))
                 return new Diagram();
-        }else {
+        } else {
             return new Diagram();
         }
         //赋值
@@ -49,8 +50,9 @@ public class DiagramService {
 
     /**
      * 新增/覆盖更新Diagram
-     *
+     * <p>
      * 因为存在覆盖更新，所以很危险，若新建Diagram，请确保diagramId<0
+     *
      * @param diagramId
      * @param diagramName
      * @param chart
@@ -59,16 +61,16 @@ public class DiagramService {
      * @param dataSourceId
      * @return
      */
-    public Diagram createDiagram(String diagramId, String diagramName,String chart, String classificaion, String userId, String dataSourceId) {
+    public Diagram createDiagram(String diagramId, String diagramName, String chart, String classificaion, String userId, String dataSourceId) {
         //根据id查找Diagram
         //java8 Optional 类是一个可以为null的容器对象。如果值存在则isPresent()方法会返回true，调用get()方法会返回该对象。
         Optional<Diagram> diagram;
         diagram = diagramRepository.findById(Long.valueOf(diagramId));
         //判断是否存在，新增/覆盖更新
         Diagram newDiagram;
-        if (diagram.isPresent()){
+        if (diagram.isPresent()) {
             newDiagram = diagram.get();
-        }else {
+        } else {
             newDiagram = new Diagram();
         }
         //赋值
@@ -87,22 +89,23 @@ public class DiagramService {
     /**
      * 保存Diagram
      * 根据diagramId和userId修改saved的状态
+     *
      * @param diagramId
      * @param userId
      * @return
      */
-    public Diagram saveDiagram(String diagramId, String userId , String diagramName, String classificaion, String option) {
+    public Diagram saveDiagram(String diagramId, String userId, String diagramName, String classificaion, String option) {
         //根据id查找Diagram
         //java8 Optional 类是一个可以为null的容器对象。如果值存在则isPresent()方法会返回true，调用get()方法会返回该对象。
         Optional<Diagram> diagram;
         diagram = diagramRepository.findById(Long.valueOf(diagramId));
         //判断是否存在，保存/查询失败
         Diagram newDiagram;
-        if (diagram.isPresent()){
+        if (diagram.isPresent()) {
             newDiagram = diagram.get();
             if (!newDiagram.getUserId().equals(userId))
                 return new Diagram();
-        }else {
+        } else {
             return new Diagram();
         }
         //赋值
@@ -118,11 +121,12 @@ public class DiagramService {
 
     /**
      * 判断Diagram对象是否是空
+     *
      * @param diagram
      * @return
      */
-    public boolean isEmptyDiagram(Diagram diagram){
-        if (diagram == null || diagram.getId()==null){
+    public boolean isEmptyDiagram(Diagram diagram) {
+        if (diagram == null || diagram.getId() == null) {
             return true;
         }
         return false;

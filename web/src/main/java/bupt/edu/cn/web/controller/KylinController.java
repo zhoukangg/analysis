@@ -28,17 +28,18 @@ public class KylinController {
 
 
     /**
-     * 创建宽表，并向数据源注册
+     * 创建宽表，并向数据源注册（弃用）
+     *
      * @return
      */
     @RequestMapping("/createFaltTable")
-    public ReturnModel createFaltTable(){
+    public ReturnModel createFaltTable() {
         System.out.println("----------------createFaltTable--------------");
 
         ReturnModel result = new ReturnModel();
         //获取cubes
-        kqs.login("ADMIN","KYLIN");
-        String cubeList = kqs.listCubes(0,50000,"","");
+        kqs.login("ADMIN", "KYLIN");
+        String cubeList = kqs.listCubes(0, 50000, "", "");
         System.out.println(cubeList);
 
         //将jsonString 解析为json
@@ -53,9 +54,9 @@ public class KylinController {
             result.setResult(false);
             return result;
         }
-        for(int i = 0; i < cubeJsonArray.length();i++){
+        for (int i = 0; i < cubeJsonArray.length(); i++) {
             JSONObject job = cubeJsonArray.getJSONObject(i);
-            if (job.getString("status").equals("READY")){
+            if (job.getString("status").equals("READY")) {
                 //取出 model 名称和 project 名称
                 String model = job.getString("model");
                 String project = job.getString("project");
@@ -75,8 +76,8 @@ public class KylinController {
 
 
                 //更新数据库(falt_table)
-                List<FaltTable> faltTables = ftr.findByModelAndProject(model,project);
-                if (faltTables.size() == 0){
+                List<FaltTable> faltTables = ftr.findByModelAndProject(model, project);
+                if (faltTables.size() == 0) {
                     FaltTable faltTable = new FaltTable();
                     faltTable.setModel(model);
                     faltTable.setProject(project);
@@ -84,7 +85,7 @@ public class KylinController {
                     faltTable.setName(name);
                     faltTable.setTables(tables);
                     ftr.saveAndFlush(faltTable);
-                }else if (faltTables.size() == 1){
+                } else if (faltTables.size() == 1) {
                     FaltTable faltTable = faltTables.get(0);
                     faltTable.setModel(model);
                     faltTable.setProject(project);
@@ -92,7 +93,7 @@ public class KylinController {
                     faltTable.setName(name);
                     faltTable.setTables(tables);
                     ftr.saveAndFlush(faltTable);
-                }else {
+                } else {
                     result.setReason("数据库中已多个存在重复model,宽表创建失败，请检查数据库");
                     result.setResult(false);
                     return result;
@@ -100,17 +101,17 @@ public class KylinController {
 
                 //向数据源注册/更新宽表（dataSource）
                 List<DataSource> dataSources = dsr.findByFileNameEquals(name);
-                if (dataSources.size() == 0){
+                if (dataSources.size() == 0) {
                     DataSource dataSource = new DataSource();
                     dataSource.setFileName(name);
                     dataSource.setFileUrl(sql);
                     dataSource.setFileType("FALT");
                     dsr.saveAndFlush(dataSource);
-                }else if (dataSources.size() == 1){
+                } else if (dataSources.size() == 1) {
                     DataSource dataSource = dataSources.get(0);
                     dataSource.setFileUrl(sql);
                     dsr.saveAndFlush(dataSource);
-                }else {
+                } else {
                     result.setReason("数据库中存在重复name的数据源,宽表注册失败，请检查数据库");
                     result.setResult(false);
                     return result;

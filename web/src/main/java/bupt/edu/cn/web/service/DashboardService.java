@@ -5,6 +5,7 @@ import bupt.edu.cn.web.pojo.Dashboard;
 import bupt.edu.cn.web.repository.DashboardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
@@ -19,16 +20,16 @@ public class DashboardService {
         //根据id查找Dashboard
         //java8 Optional 类是一个可以为null的容器对象。如果值存在则isPresent()方法会返回true，调用get()方法会返回该对象。
         Optional<Dashboard> dashboard;
-        try{
+        try {
             dashboard = dashboardRepository.findById(Long.valueOf(dashboardId));
-        }catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
         //判断是否存在，新增/更新
         Dashboard newDashboard;
-        if (dashboard.isPresent()){
+        if (dashboard.isPresent()) {
             newDashboard = dashboard.get();
-        }else {
+        } else {
             newDashboard = new Dashboard();
         }
         //赋值

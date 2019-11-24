@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GenerateTable {
+
     public com.alibaba.fastjson.JSONArray generateCowJSON(String[] dimArr, String[] rowArr, List<Map> listJson) {
         List<String> cowList = new ArrayList<>(Arrays.asList(dimArr));
         List<String> rowList = new ArrayList<>(Arrays.asList(rowArr));
@@ -106,8 +107,8 @@ public class GenerateTable {
         return rowJson;
     }
 
-    private int isExistInJSONArray(com.alibaba.fastjson.JSONArray jsonArray,String name,String value){
-        for(int i = 0;i<jsonArray.size();i++){
+    private int isExistInJSONArray(com.alibaba.fastjson.JSONArray jsonArray, String name, String value) {
+        for (int i = 0; i < jsonArray.size(); i++) {
             if (jsonArray.getJSONObject(i).getString(name).equals(value))
                 return i;
         }

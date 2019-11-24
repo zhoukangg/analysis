@@ -20,7 +20,7 @@ public class FileUtil {
 
         for (int i = 0; i < tempList.length; i++) {
             if (tempList[i].isFile() && tempList[i].getName().endsWith(".csv")) {
-              System.out.println("文     件：" + tempList[i].getName());
+                System.out.println("文     件：" + tempList[i].getName());
                 files.add(tempList[i].toString());
             }
             if (tempList[i].isDirectory()) {
@@ -37,7 +37,7 @@ public class FileUtil {
 
         for (int i = 0; i < tempList.length; i++) {
             if (tempList[i].isFile() && tempList[i].getName().endsWith(".csv")) {
-                String fileName = tempList[i].getName().substring(0,tempList[i].getName().length()-4);
+                String fileName = tempList[i].getName().substring(0, tempList[i].getName().length() - 4);
                 DataSource ds = new DataSource();
                 ds.setId(-1);
                 ds.setFileName(fileName);
@@ -57,7 +57,7 @@ public class FileUtil {
 
         for (int i = 0; i < tempList.length; i++) {
             if (tempList[i].isFile() && tempList[i].getName().endsWith(".csv")) {
-                String fileName = tempList[i].getName().substring(0,tempList[i].getName().length()-4);
+                String fileName = tempList[i].getName().substring(0, tempList[i].getName().length() - 4);
                 if (!fileName.contains(content))
                     break;
                 DataSource ds = new DataSource();

@@ -11,14 +11,16 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import bupt.edu.cn.web.pojo.Story;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Optional;
+
+/**
+ * 故事控制类
+ */
 
 @RestController
 public class StoryController {
@@ -34,43 +36,37 @@ public class StoryController {
         // 解决Ajax跨域请求问题
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
-        System.out.println("----------------findAllStory-----------");;
+        System.out.println("----------------findAllStory-----------");
         System.out.println("userId = " + userId);
 
         ReturnModel result = new ReturnModel();
         JSONArray storys = new JSONArray(); //存储story
         List<Story> stroyList = storyRepository.findByUserId(userId);
-        for (int i = 0; i<stroyList.size();i++){
+        for (int i = 0; i < stroyList.size(); i++) {
             JSONArray story = new JSONArray(); //存储storyItem
-            Long stroyId  = stroyList.get(i).getId();
+            Long stroyId = stroyList.get(i).getId();
             List<StoryItem> storyItemList = storyItemRepository.findByStoryId(stroyId.toString());
-            for (int j = 0; j<storyItemList.size();j++){
+            for (int j = 0; j < storyItemList.size(); j++) {
                 JSONObject storyItem = new JSONObject(); //存储option 和 description
-//                if (!((storyItemList.get(i).getDiagramId().equals("")) || (storyItemList.get(i).getDiagramId().equals(" ")) || (storyItemList.get(i).getDiagramId() == null))){
-//
-//                }
                 Optional<Diagram> diagramOptional = diagramRepository.findById(Long.valueOf(storyItemList.get(j).getDiagramId()));
                 Diagram diagram = new Diagram();
-                if (diagramOptional.isPresent()){
+                if (diagramOptional.isPresent()) {
                     diagram = diagramOptional.get();
-                    storyItem.put("diagramId",diagram.getId());
-                    storyItem.put("option",JSON.parseObject(diagram.getChart()));
-                    storyItem.put("description",storyItemList.get(j).getDescription());
-                }else {
-//                    result.setResult(false);
-//                    result.setReason("数据库存储的diagram缺失");
-//                    return result;
-                    storyItem.put("diagramId","");
-                    storyItem.put("option","");
-                    storyItem.put("description",storyItemList.get(j).getDescription());
+                    storyItem.put("diagramId", diagram.getId());
+                    storyItem.put("option", JSON.parseObject(diagram.getChart()));
+                    storyItem.put("description", storyItemList.get(j).getDescription());
+                } else {
+                    storyItem.put("diagramId", "");
+                    storyItem.put("option", "");
+                    storyItem.put("description", storyItemList.get(j).getDescription());
                 }
 
                 story.add(storyItem);
             }
             JSONObject ss = new JSONObject();
-            ss.put("storyName",stroyList.get(i).getStoryName());
-            ss.put("storyId",stroyList.get(i).getId());
-            ss.put("content",story);
+            ss.put("storyName", stroyList.get(i).getStoryName());
+            ss.put("storyId", stroyList.get(i).getId());
+            ss.put("content", story);
             storys.add(ss);
         }
         result.setResult(true);
@@ -79,8 +75,8 @@ public class StoryController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/createStory", method = RequestMethod.POST,produces = "application/json;charset=UTF-8")
-    public ReturnModel createStory(@RequestParam(value="content") String content,@RequestParam(value="storyName") String storyName,@RequestParam(value="userId") String userId,  HttpServletResponse response, HttpServletRequest request) {
+    @RequestMapping(value = "/createStory", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public ReturnModel createStory(@RequestParam(value = "content") String content, @RequestParam(value = "storyName") String storyName, @RequestParam(value = "userId") String userId, HttpServletResponse response, HttpServletRequest request) {
         // 解决Ajax跨域请求问题
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
@@ -90,11 +86,6 @@ public class StoryController {
         System.out.println("userId = " + userId);
 
         JSONArray conArr = JSON.parseArray(content);
-//        for (int i=0;i<conArr.size();i++){
-//            System.out.println("conArr = " + conArr.getString(i));
-//        }
-//        System.out.println("conArr = " + conArr.size());
-
         ReturnModel result = new ReturnModel();
 
         //数据库创建一个story
@@ -107,7 +98,7 @@ public class StoryController {
         System.out.println("create storyId = " + storyId);
 
         //根据content，数据库创建storyItem
-        for (int i = 0; i<conArr.size();i++){
+        for (int i = 0; i < conArr.size(); i++) {
             JSONObject jsonStoryItem = conArr.getJSONObject(i);
             Long diagramId = jsonStoryItem.getLong("diagramId");
             String description = jsonStoryItem.getString("description");
@@ -125,8 +116,8 @@ public class StoryController {
 
     //
     @RequestMapping("/updateStory")
-    public ReturnModel updateStory(@RequestParam(value="storyId") String storyId,@RequestParam(value="content") String content,
-                                   @RequestParam(value="storyName") String storyName,@RequestParam(value="userId") String userId,
+    public ReturnModel updateStory(@RequestParam(value = "storyId") String storyId, @RequestParam(value = "content") String content,
+                                   @RequestParam(value = "storyName") String storyName, @RequestParam(value = "userId") String userId,
                                    HttpServletResponse response, HttpServletRequest request) {
         // 解决Ajax跨域请求问题
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
@@ -142,12 +133,12 @@ public class StoryController {
 
         //根据ID查找一个story
         Optional<Story> oStory = storyRepository.findById(Long.valueOf(storyId));
-        if (oStory.isPresent()){
+        if (oStory.isPresent()) {
             //数据库更新story
             Story story = oStory.get();
             story.setStoryName(storyName);
             storyRepository.saveAndFlush(story);
-        }else {
+        } else {
             result.setResult(false);
             result.setReason("不存在该story");
             return result;
@@ -155,7 +146,7 @@ public class StoryController {
         //删除对应的storyItem，以便重新建立
         storyItemRepository.deleteByStoryId(storyId);
         //根据content，数据库创建storyItem
-        for (int i = 0; i<conArr.size();i++){
+        for (int i = 0; i < conArr.size(); i++) {
             JSONObject jsonStoryItem = conArr.getJSONObject(i);
             Long diagramId = jsonStoryItem.getLong("diagramId");
             String description = jsonStoryItem.getString("description");
@@ -171,7 +162,6 @@ public class StoryController {
         return result;
     }
 
-    //
     @RequestMapping("/delectStory")
     public ReturnModel delectStory(String storyId, String userId, HttpServletResponse response, HttpServletRequest request) {
         // 解决Ajax跨域请求问题

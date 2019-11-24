@@ -40,11 +40,12 @@ public class DataTableInfoService {
 
     /**
      * 获取宽表的维度和度量
+     *
      * @param project
      * @param tables
      * @return
      */
-    public Map<String,String[]> getFaltTableDims(String project, String tables){
+    public Map<String, String[]> getFaltTableDims(String project, String tables) {
 //        System.out.println(project);
 //        System.out.println(tables);
 
@@ -52,22 +53,22 @@ public class DataTableInfoService {
         List<String> dims = new ArrayList<>();
         List<String> meas = new ArrayList<>();
         String[] tableArr = tables.split(",");
-        kqs.login("ADMIN","KYLIN");
-        for (int i= 0;i<tableArr.length;i++){
+        kqs.login("ADMIN", "KYLIN");
+        for (int i = 0; i < tableArr.length; i++) {
 //            System.out.println(tableArr[i]);
-            String tableStr = kqs.getHiveTable(project,tableArr[i]);
+            String tableStr = kqs.getHiveTable(project, tableArr[i]);
 //            System.out.println(tableStr);
             JSONObject tableJson = new JSONObject(tableStr);
             JSONArray columns = tableJson.getJSONArray("columns");
 //            System.out.println(columns.length());
-            for (int j=0;j<columns.length();j++){
+            for (int j = 0; j < columns.length(); j++) {
                 JSONObject column = columns.getJSONObject(j);
                 String datatype = column.getString("datatype");
 //                System.out.println(datatype);
-                if(datatype.indexOf("data") != -1 || datatype.indexOf("varchar") != -1){
-                    dims.add(tableJson.getString("name")+"."+column.getString("name"));
-                }else{
-                    meas.add(tableJson.getString("name")+"."+column.getString("name"));
+                if (datatype.indexOf("data") != -1 || datatype.indexOf("varchar") != -1) {
+                    dims.add(tableJson.getString("name") + "." + column.getString("name"));
+                } else {
+                    meas.add(tableJson.getString("name") + "." + column.getString("name"));
                 }
             }
         }
@@ -79,11 +80,12 @@ public class DataTableInfoService {
 
     /**
      * 获取宽表包含的hive表
+     *
      * @param project
      * @param tables
      * @return
      */
-    public List<String> getFaltTableTables(String project, String tables){
+    public List<String> getFaltTableTables(String project, String tables) {
         String[] tableArr = tables.split(",");
 //        List<String> result = new ArrayList<>();
 //        for (int i = 0;i<tableArr.length;i++){
@@ -94,61 +96,63 @@ public class DataTableInfoService {
 
     /**
      * 获取宽表包含的hive表的维度和度量
+     *
      * @param project
      * @param tableName
      * @return
      */
-    public Map<String,List<String>> getHiveTableDimsByKylin(String project, String tableName){
-        kqs.login("ADMIN","KYLIN");
-        String tableStr = kqs.getHiveTable(project,tableName);
+    public Map<String, List<String>> getHiveTableDimsByKylin(String project, String tableName) {
+        kqs.login("ADMIN", "KYLIN");
+        String tableStr = kqs.getHiveTable(project, tableName);
         JSONObject tableJson = new JSONObject(tableStr);
         JSONArray columns = tableJson.getJSONArray("columns");
         List<String> tableDims = new ArrayList<>();
         List<String> tableMeas = new ArrayList<>();
-        for (int j=0;j<columns.length();j++){
+        for (int j = 0; j < columns.length(); j++) {
             JSONObject column = columns.getJSONObject(j);
             String datatype = column.getString("datatype");
-            if(datatype.indexOf("data") != -1 || datatype.indexOf("varchar") != -1){
+            if (datatype.indexOf("data") != -1 || datatype.indexOf("varchar") != -1) {
                 tableDims.add(column.getString("name"));
-            }else{
+            } else {
                 tableMeas.add(column.getString("name"));
             }
         }
-        Map<String,List<String>> result = new HashMap();
-        result.put("dims",tableDims);
-        result.put("meas",tableMeas);
+        Map<String, List<String>> result = new HashMap();
+        result.put("dims", tableDims);
+        result.put("meas", tableMeas);
         return result;
     }
 
 
     /**
      * 获取宽表的维度和度量(按照hive表组织)
+     *
      * @param project
      * @param tables
      * @return
      */
-    public Map<String,Map<String,List<String>>> getFaltTableDimsGroupByTables(String project, String tables){
+    public Map<String, Map<String, List<String>>> getFaltTableDimsGroupByTables(String project, String tables) {
         Map result = new HashMap();
-        Map<String,List<String>> dims = new HashMap<>();
-        Map<String,List<String>> meas = new HashMap<>();
+        Map<String, List<String>> dims = new HashMap<>();
+        Map<String, List<String>> meas = new HashMap<>();
         String[] tableArr = tables.split(",");
-        kqs.login("ADMIN","KYLIN");
-        for (int i= 0;i<tableArr.length;i++){
+        kqs.login("ADMIN", "KYLIN");
+        for (int i = 0; i < tableArr.length; i++) {
 //            System.out.println(tableArr[i]);
-            String tableStr = kqs.getHiveTable(project,tableArr[i]);
+            String tableStr = kqs.getHiveTable(project, tableArr[i]);
 //            System.out.println(tableStr);
             JSONObject tableJson = new JSONObject(tableStr);
             JSONArray columns = tableJson.getJSONArray("columns");
 //            System.out.println(columns.length());
             List<String> tableDims = new ArrayList<>();
             List<String> tableMeas = new ArrayList<>();
-            for (int j=0;j<columns.length();j++){
+            for (int j = 0; j < columns.length(); j++) {
                 JSONObject column = columns.getJSONObject(j);
                 String datatype = column.getString("datatype");
 //                System.out.println(datatype);
-                if(datatype.indexOf("data") != -1 || datatype.indexOf("varchar") != -1){
+                if (datatype.indexOf("data") != -1 || datatype.indexOf("varchar") != -1) {
                     tableDims.add(column.getString("name"));
-                }else{
+                } else {
                     tableMeas.add(column.getString("name"));
                 }
             }
@@ -160,8 +164,8 @@ public class DataTableInfoService {
 //                meas.put(tableJson.getString("name"),tableMeas);
 //            }
             //没有值也放该表
-            dims.put(tableJson.getString("name"),tableDims);
-            meas.put(tableJson.getString("name"),tableMeas);
+            dims.put(tableJson.getString("name"), tableDims);
+            meas.put(tableJson.getString("name"), tableMeas);
         }
         result.put("dims", dims);
         result.put("meas", meas);
@@ -172,15 +176,16 @@ public class DataTableInfoService {
 
     /**
      * 获取csv文件的维度和度量
+     *
      * @param fileUrl
      * @return
      */
-    public Map<String,String[]> getCsvDim(String fileUrl){
+    public Map<String, String[]> getCsvDim(String fileUrl) {
         Map result = new HashMap();
         List<String> dims = new ArrayList<>();
         List<String> meas = new ArrayList<>();
-        String[] nextLine={};
-        String[] demoLine={};
+        String[] nextLine = {};
+        String[] demoLine = {};
         try {
             // 创建CSV读对象
             CSVReader reader = null;
@@ -195,10 +200,10 @@ public class DataTableInfoService {
             e.printStackTrace();
         }
         //判断String和数值型，区分dims和meas
-        for (int i=0;i<demoLine.length;i++){
-            if (isInteger(demoLine[i]) || isDouble(demoLine[i])){
+        for (int i = 0; i < demoLine.length; i++) {
+            if (isInteger(demoLine[i]) || isDouble(demoLine[i])) {
                 meas.add(nextLine[i]);
-            }else {
+            } else {
                 dims.add(nextLine[i]);
             }
         }

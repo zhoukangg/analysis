@@ -3,9 +3,7 @@ package bupt.edu.cn.web.controller;
 import bupt.edu.cn.web.common.ReturnModel;
 import bupt.edu.cn.web.util.realtime.HiveListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -21,15 +19,21 @@ public class HiveController {
     @Autowired
     HiveListener hiveListener;
 
+    /**
+     * 测试实时驾驶舱（hive数据源）（弃用）
+     *
+     * @param fileUrl
+     * @return
+     */
     @RequestMapping(value = "/hiveChange")
     public ReturnModel hiveChange(String fileUrl) {
         System.out.println("--------进入方法hiveChange-----");
         System.out.println("--------参数 fileUrl = " + fileUrl);
         ReturnModel returnModel = new ReturnModel();
-        try{
+        try {
             hiveListener.exeTimeInterval(fileUrl);
             returnModel.setResult(true);
-        }catch (Exception e){
+        } catch (Exception e) {
             returnModel.setResult(false);
             e.printStackTrace();
         }

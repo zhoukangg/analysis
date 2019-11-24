@@ -11,9 +11,18 @@ import java.util.Map;
 
 @Service
 public class NewOptionService {
-    //meas 是度量，dims是维度，listJson是series.data
-    public JSONObject newcreateOptionSpark(String[] dims, List<String> meas, List<Map> listJson) {
-        System.out.println("--------------------------");
+
+
+    /**
+     * 根据数据 创建默认图表
+     *
+     * @param dims     维度
+     * @param meas     度量
+     * @param listJson 是series.data
+     * @return
+     */
+    public JSONObject newCreateOption(String[] dims, List<String> meas, List<Map> listJson) {
+        System.out.println("------------创建默认图表");
         System.out.println(JSON.toJSONString(dims));
         System.out.println(JSON.toJSONString(meas));
         System.out.println(JSON.toJSONString(listJson));

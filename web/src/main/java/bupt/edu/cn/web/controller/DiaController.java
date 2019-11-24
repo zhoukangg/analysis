@@ -39,7 +39,7 @@ public class DiaController {
     DiagramService diagramService;
 
     @Autowired
-    NewOptionService newoptionService;
+    NewOptionService newOptionService;
 
     @Autowired
     QueryService queryService;
@@ -62,6 +62,19 @@ public class DiaController {
         return result.toString();
     }
 
+    /**
+     * 查看数据
+     *
+     * @param userId
+     * @param dataSourceId
+     * @param dims
+     * @param meas
+     * @param fileUrl
+     * @param tableName
+     * @param fileType
+     * @param limit
+     * @return
+     */
     @RequestMapping("/queryData")
     public String queryData(String userId, String dataSourceId, String dims, String meas, String fileUrl, String tableName, String fileType, String limit) {
         if (System.getProperty("os.name").split(" ")[0] == "Windows")
@@ -79,8 +92,6 @@ public class DiaController {
 
         if (dims.equals("") && meas.equals(""))       //两个都是空的时候直接返回空值
             return "";
-
-        JSONObject result = new JSONObject();
 
         if (dims != null && !dims.equals("") && !dims.equals(" ")) {
             dims = StringUtil.custom_trim(dims, ',');
@@ -125,8 +136,9 @@ public class DiaController {
                 meaArr.set(i, meaArr.get(i).toLowerCase());
             }
         }
-        SQLGenerate sqlGenerate = new SQLGenerate();
+
         //获取SQL
+        SQLGenerate sqlGenerate = new SQLGenerate();
         String sql;
         if (meaArr.size() == 1 && dimArr.length == 0)     //兼容指标卡的特殊Option
             sql = sqlGenerate.getWithOnemeas(funArr, meaArr, tableName, fileType, fileUrl, routeStr);
@@ -135,41 +147,24 @@ public class DiaController {
         System.out.println("The SQL is: " + sql);
         List<Map> listJson = queryService.getQueryData(Arrays.asList(dimArr), funArr, meaArr, fileUrl, tableName, sql, routeStr);
 
-//        List<String> mea_fun = new ArrayList<>();
-//        for (int i = 0;i<meaArr.size();i++){
-//            mea_fun.add(meaArr.get(i)+"_"+funArr.get(i));
-//        }
-//        JSONObject jo = newoptionService.newcreateOptionSpark(dimArr,mea_fun,listJson);
-//
-//        String clas ="2";
-//        if (mea_fun.size()>1){
-//            clas = "4";
-//        }
-//        Diagram diagram = diagramService.createDiagram("-1","unset",jo.toString(),clas,userId,dataSourceId);
-//        JSONObject re = new JSONObject();
-//        re.put("option",jo);
-//        re.put("diagramId",diagram.getId());
-//        re.put("diagramName",diagram.getName());
-//        re.put("classificaion",diagram.getClassification());
-//        re.put("userId",diagram.getUserId());
-//        re.put("dataSourceId",diagram.getDataSourceId());
-
+        // 返回结果
+        JSONObject result = new JSONObject();
         result.put("result", WebConstant.QUERY_SUCCESS.isResult());
         result.put("reason", WebConstant.QUERY_SUCCESS.getReason());
         result.put("datum", listJson);
-
         return result.toString();
     }
 
-    /***
+    /**
+     * 创建图表（计算）
      *
      * @param userId
      * @param dataSourceId 数据源ID
-     * @param dims 纬度
-     * @param meas 度量
-     * @param fileUrl 分析文件路径
+     * @param dims         纬度
+     * @param meas         度量
+     * @param fileUrl      分析文件路径
      * @param tableName
-     * @param fileType 文件类型
+     * @param fileType     文件类型
      * @param limit
      * @param rows
      * @return
@@ -216,7 +211,6 @@ public class DiaController {
             e.printStackTrace();
         }
 
-        JSONObject result = new JSONObject();
 
         // 处理纬度字符串为纬度数组
         if (!StringUtil.isEmpty(dims)) {
@@ -314,7 +308,7 @@ public class DiaController {
             if (!listJson.get(0).containsKey(dims) && !(dimArr.length == 0 && meaArr.size() != 0) && !(dimArr.length > 1 && meaArr.size() == 1) && dimArr.length == 1)  //用来判断是否是可以上卷下钻的
                 drillflag = true;
         if (drillflag) {                             // 为上卷下钻排序并增加一个"年"的后缀
-            Collections.sort(listJson, new Comparator<Map>() {  //給整个listJson进行排序
+            Collections.sort(listJson, new Comparator<Map>() {  //给整个listJson进行排序
                 public int compare(Map o1, Map o2) {
                     Integer date1 = Integer.valueOf(o1.get("year").toString());
                     Integer date2 = Integer.valueOf(o2.get("year").toString());
@@ -355,7 +349,7 @@ public class DiaController {
             for (int i = 0; i < meaArr.size(); i++) {
                 mea_fun.add(meaArr.get(i) + "_" + funArr.get(i));
             }
-            JSONObject op = newoptionService.newcreateOptionSpark(dimArr, mea_fun, listJson);
+            JSONObject op = newOptionService.newCreateOption(dimArr, mea_fun, listJson);
             diagram = diagramService.createDiagram("-1", "picture", op.toString(), clas, userId, dataSourceId);
             re.put("option", op);
 
@@ -380,18 +374,12 @@ public class DiaController {
         re.put("dataSourceId", diagram.getDataSourceId());
         re.put("drillflag", drillflag);
 
+        // 返回结果
+        JSONObject result = new JSONObject();
         result.put("result", WebConstant.QUERY_SUCCESS.isResult());
         result.put("reason", WebConstant.QUERY_SUCCESS.getReason());
         result.put("datum", re);
         return result.toString();
-    }
-
-    public int isExistInJSONArray(com.alibaba.fastjson.JSONArray jsonArray, String name, String value) {
-        for (int i = 0; i < jsonArray.size(); i++) {
-            if (jsonArray.getJSONObject(i).getString(name).equals(value))
-                return i;
-        }
-        return -1;
     }
 
 
@@ -407,11 +395,11 @@ public class DiaController {
      * @return
      */
     @RequestMapping("/newupdateDiagram")
-    public String newupdateDiagram(int diagramId, String diagramName, int diagramType, int userId, HttpServletRequest request, HttpServletResponse response) {
+    public String newUpdateDiagram(int diagramId, String diagramName, int diagramType, int userId, HttpServletRequest request, HttpServletResponse response) {
         // 解决Ajax跨域请求问题
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
-        System.out.println("----------------newupdateDiagram-----------");
+        System.out.println("----------------newUpdateDiagram-----------");
         System.out.println("diagramId = " + diagramId + ";diagramName = " + diagramId + ";diagramType = " + diagramType + ";userID = " + userId);
 
         Optional<Diagram> diagram = diagramRepository.findById(Long.valueOf(diagramId));
@@ -445,21 +433,36 @@ public class DiaController {
         datum.put("option", new JSONObject(str_newDiagram));
         datum.put("diagramId", diagramId);
         datum.put("diagramName", diagramName);
-//        datum.put("classification",newDiagram.getClassification());
         datum.put("userId", userId);
-//        datum.put("dataSourceId",newDiagram.getDataSourceId());
         result.put("datum", datum);
 
         return result.toString();
     }
 
+    /**
+     * 上钻下钻接口
+     *
+     * @param userId
+     * @param dataSourceId
+     * @param dim
+     * @param mea
+     * @param year
+     * @param month
+     * @param day
+     * @param season
+     * @param chartType
+     * @param tableName
+     * @param response
+     * @param request
+     * @return
+     */
     @RequestMapping("/DataScrollDrill")
-    public String DataScrollDrill(String userId, String dataSourceId, String dim, String mea, int year, int month, int day, int season, int chartType,
+    public String dataScrollDrill(String userId, String dataSourceId, String dim, String mea, int year, int month, int day, int season, int chartType,
                                   String tableName, HttpServletResponse response, HttpServletRequest request) {
 
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
-        System.out.println("----------------DataScrollDrill-----------");
+        System.out.println("----------------dataScrollDrill-----------");
         System.out.println("year = " + year + ", season = " + season + ", month = " + month + ", day = " + day);
         JSONObject result = new JSONObject();
 
@@ -476,12 +479,10 @@ public class DiaController {
         String fileName = tableName + "-" + measArr[1] + "_" + measArr[0] + "-" + dimArr[0];
 
         SQLGenerate sqlGenerate = new SQLGenerate();
-        String sql = "";
-//        String pathurl = "/Users/kang/D/projectFile/";
-        String pathurl = DRILLPATH;
-        sql = sqlGenerate.getWithScrollDrill(fileName, measArr, year, season, month, day);
+        String pathUrl = DRILLPATH;
+        String sql = sqlGenerate.getWithScrollDrill(fileName, measArr, year, season, month, day);
         System.out.println("The SQL is : " + sql);
-        List<Map> listJson = queryService.getQueryDataWithDate(pathurl + fileName, fileName, sql);
+        List<Map> listJson = queryService.getQueryDataWithDate(pathUrl + fileName, fileName, sql);
 
         //整理一下最后的list
         final String colName = StringUtil.getcolname(listJson);
@@ -514,11 +515,10 @@ public class DiaController {
         //整理listJson结束
 
         JSONObject re = new JSONObject();
-        Diagram diagram = new Diagram();
         List<String> mea_fun = new ArrayList<>();
         mea_fun.add(measArr[1] + "_" + measArr[0]);
-        JSONObject jo = newoptionService.newcreateOptionSpark(dimArr, mea_fun, listJson);
-        diagram = diagramService.createDiagram("-1", "picture", jo.toString(), "2", userId, dataSourceId);
+        JSONObject jo = newOptionService.newCreateOption(dimArr, mea_fun, listJson);
+        Diagram diagram = diagramService.createDiagram("-1", "picture", jo.toString(), "2", userId, dataSourceId);
         String str_newDiagram = new chartsBase().transDiagram(2, chartType, diagram.getChart());
         diagramService.updateDiagram(diagram.getId() + "", diagram.getName(), str_newDiagram, "5", userId + "");
 

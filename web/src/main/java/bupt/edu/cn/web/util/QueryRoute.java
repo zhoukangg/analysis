@@ -18,6 +18,16 @@ public class QueryRoute {
     @Autowired
     KylinQueryService kylinQueryService;
 
+    /**
+     * 路由得到执行引擎
+     *
+     * @param dims
+     * @param funArr
+     * @param meas
+     * @param fileName
+     * @param fileUrl
+     * @return
+     */
     public String route(List<String> dims, List<String> funArr, List<String> meas, String fileName, String fileUrl) {
         System.out.println("-------start route-------");
         if (fileUrl.startsWith("select ")) {
@@ -34,9 +44,9 @@ public class QueryRoute {
                 return "error,查找到多个宽表";
             }
 
-            ////得到project中所有的cube的维度和度量，并判断kylin中是否构建该查询
+            // 得到project中所有的cube的维度和度量，并判断kylin中是否构建该查询
             kylinQueryService.login("ADMIN", "KYLIN");
-            //得到project中所有的cube(没有维度信息)
+            // 得到project中所有的cube(没有维度信息)
             String cubes = kylinQueryService.listCubes(0, 50000, "", project);
             System.out.println("-------cubes-------");
             JSONArray cubesArr = new JSONArray(cubes);
