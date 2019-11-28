@@ -9,8 +9,8 @@
     <!-- 配置文件路径 -->
 
     <!--数据库驱动包路径 -->
-    <!--<classPathEntry location="/Users/kang/.m2/repository/mysql/mysql-connector-java/5.1.44/mysql-connector-java-5.1.44.jar"/>-->
-    <classPathEntry location="E:/mysql-connector-java-5.1.44.jar"/>
+    <classPathEntry location="/Users/kang/.m2/repository/mysql/mysql-connector-java/5.1.44/mysql-connector-java-5.1.44.jar"/>
+    <!--<classPathEntry location="E:/mysql-connector-java-5.1.44.jar"/>-->
 
     <context id="DB2Tables" targetRuntime="MyBatis3">
         <!--关闭注释 -->
@@ -43,11 +43,11 @@
         <!--<table tableName="processlist"></table>-->
 
         <!--<table tableName="falt_table"></table>-->
-        <!--<table tableName="diagram"></table>-->
+        <table tableName="diagram"></table>
         <!--<table tableName="user"></table>-->
         <!--<table tableName="data_source"></table>-->
         <!--<table tableName="dashboard"></table>-->
-        <table tableName="cockpit"></table>
+        <!--<table tableName="cockpit"></table>-->
         <!--<table tableName="diagram_sql"></table>-->
         <!--<table tableName="story"></table>-->
         <!--<table tableName="story_item"></table>-->

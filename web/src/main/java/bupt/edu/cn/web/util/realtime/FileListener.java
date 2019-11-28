@@ -19,7 +19,7 @@ import static bupt.edu.cn.web.WebApplication.getApplicationContext;
 
 public class FileListener extends FileAlterationListenerAdaptor {
 
-    rtAction rtaction;
+    RtAction rtaction;
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(SocketServer.class);
     /**
@@ -34,7 +34,7 @@ public class FileListener extends FileAlterationListenerAdaptor {
      * 重新计算
      */
     public void onFileChange(File file) {
-        rtaction = getApplicationContext().getBean(rtAction.class);
+        rtaction = getApplicationContext().getBean(RtAction.class);
         try {
             rtaction.ChangeOption(file);
         }catch (Exception e){

@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 @Service
-public class rtAction {
+public class RtAction {
     @Autowired
     CockpitRepository cockpitRepository;
 

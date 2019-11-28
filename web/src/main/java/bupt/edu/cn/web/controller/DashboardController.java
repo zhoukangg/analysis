@@ -4,9 +4,12 @@ import bupt.edu.cn.web.common.ReturnModel;
 import bupt.edu.cn.web.pojo.Cockpit;
 import bupt.edu.cn.web.repository.CockpitRepository;
 import bupt.edu.cn.web.repository.DiagramRepository;
+import bupt.edu.cn.web.service.DiagramService;
+import com.alibaba.fastjson.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,6 +28,8 @@ public class DashboardController {
     CockpitRepository cockpitRepository;
     @Autowired
     DiagramRepository diagramRepository;
+    @Autowired
+    DiagramService diagramService;
 
     /**
      * 保存驾驶舱接口
@@ -171,6 +176,53 @@ public class DashboardController {
         }
         result.setDatum(cockpit);
         return result;
+    }
+
+    /**
+     * 多图联动接口
+     *
+     * @param cockpitId
+     * @param diagramId
+     * @param condition
+     * @param response
+     * @param request
+     * @return
+     */
+    @RequestMapping("/getDiagramAssociation")
+    public ReturnModel getDiagramAssociation(Integer cockpitId, Long diagramId, String condition, HttpServletResponse response, HttpServletRequest request) {
+        System.out.println("*********getDiagramAssociation方法");
+        System.out.println("*********diagramId:" + diagramId);
+        System.out.println("*********condition:" + condition);
+        ReturnModel returnModel = new ReturnModel();
+        try {
+            Boolean flag = diagramService.calculationAssoiation(cockpitId, diagramId, condition);
+            if (flag) {
+                JSONArray jsonArray = diagramService.getAssoiation(diagramId);
+                returnModel.setDatum(jsonArray);
+            }
+            returnModel.setResult(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return returnModel;
+    }
+
+    /**
+     * 测试默认参数
+     *
+     * @param cockpitId
+     * @param diagramId
+     * @param condition
+     * @return
+     */
+    @RequestMapping("/testDefaultValue")
+    public ReturnModel testDefaultValue(@RequestParam(defaultValue = "-100") int cockpitId,
+                                        Long diagramId,
+                                        String condition) {
+        System.out.println(cockpitId);
+        System.out.println(diagramId);
+        System.out.println(condition);
+        return new ReturnModel();
     }
 
 }

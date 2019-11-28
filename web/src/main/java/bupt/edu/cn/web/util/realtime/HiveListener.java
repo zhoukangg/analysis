@@ -1,16 +1,8 @@
 package bupt.edu.cn.web.util.realtime;
 import bupt.edu.cn.web.pojo.Diagram;
-import bupt.edu.cn.web.repository.CockpitRepository;
-import bupt.edu.cn.web.repository.DataSourceRepository;
 import bupt.edu.cn.web.repository.DiagramRepository;
-import bupt.edu.cn.web.repository.DiagramSQLRepository;
-import bupt.edu.cn.web.service.DiagramService;
 import bupt.edu.cn.web.service.HiveService;
-import bupt.edu.cn.web.service.NewOptionService;
 import bupt.edu.cn.web.service.QueryService;
-import bupt.edu.cn.web.util.realtime.SocketServer;
-import org.apache.commons.io.monitor.FileAlterationMonitor;
-import org.apache.tools.ant.taskdefs.Sleep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
@@ -39,7 +31,7 @@ public class HiveListener {
     HiveService hiveService;
 
     @Autowired
-    rtAction ra;
+    RtAction ra;
     public static Map<String, Long> FileChangeDate = new ConcurrentHashMap<>();
 
     //

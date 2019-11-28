@@ -45,8 +45,6 @@ public class chartsBase {
     // 11 词云图
     private String wordCloudBasic = "{title:{text:\"title\",left:\"center\"}, \"tooltip\":{show: true},\"backgroundColor\": \"#fff\",\"series\":[{\"type\": \"wordCloud\", \"textStyle\":{\"normal\":{\"color\":\"#3b8dbc\"},\"emphasis\":{\"shadowBlur\":10, \"shadowColor\": \"#333\"}},\"roam\": true,\"data\":[]}]}";
 
-    private String wordCloudFun = "function() {return \"rgb(\" + [Math.round(Math.random() * 160),Math.round(Math.random() * 160),Math.round(Math.random() * 160)].join(\",\") + \")\";}";
-
     String bubbleDataItem = "{ \"name\": \"考研\", \"value\": \"10000\", \"symbolSize\": 50, \"draggable\": true, \"itemStyle\": { \"normal\": { \"borderColor\": \"rgb(27, 94, 93)\", \"borderWidth\": 4, \"shadowBlur\": 100, \"shadowColor\": \"rgb(27, 94, 93)\", \"color\": \"rgb(27, 94, 93)\" } } }\n";
 
 
@@ -287,7 +285,6 @@ public class chartsBase {
             dataItem.put("value", value.getString(i));
             boxData.put(dataItem);
         }
-        box.getJSONArray("series").getJSONObject(0).getJSONObject("textStyle").getJSONObject("normal").put("color", wordCloudFun);
         box.getJSONArray("series").getJSONObject(0).put("data", boxData);
         String title = newoption.getJSONObject("title").getString("text");
         newoption.getJSONObject("title").put("text", title);

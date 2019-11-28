@@ -1,6 +1,5 @@
 package bupt.edu.cn.web.util.realtime;
 
-import bupt.edu.cn.web.WebApplication;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -8,7 +7,6 @@ import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
@@ -16,7 +14,6 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -30,7 +27,7 @@ import static bupt.edu.cn.web.WebApplication.getApplicationContext;
 public class SocketServer{
 
 //	private static ApplicationContext applicationContext;
-	rtAction rtaction;
+	RtAction rtaction;
 //
 //	public static void setApplicationContext(ApplicationContext applicationContext){
 //		SocketServer.applicationContext = applicationContext;
@@ -79,7 +76,7 @@ public class SocketServer{
 	 */
 	@OnOpen
 	public void open(Session session, @PathParam(value="cockpitId")int cockpitId){
-		rtaction = getApplicationContext().getBean(rtAction.class);
+		rtaction = getApplicationContext().getBean(RtAction.class);
 		logger.info("监听CockpitIdL：" + cockpitId + "!!!!!");
 		this.session = session;
 		CockpitListener cpl = new CockpitListener(new Client(cockpitId, session));

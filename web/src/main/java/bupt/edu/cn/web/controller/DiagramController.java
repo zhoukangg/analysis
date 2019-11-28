@@ -7,11 +7,14 @@ import bupt.edu.cn.web.chartsmodel.radar.Indicator;
 import bupt.edu.cn.web.chartsmodel.radar.SeriesRadar;
 import bupt.edu.cn.web.common.ReturnModel;
 import bupt.edu.cn.web.pojo.Diagram;
+import bupt.edu.cn.web.pojo.DiagramSql;
 import bupt.edu.cn.web.repository.DiagramRepository;
+import bupt.edu.cn.web.repository.DiagramSQLRepository;
 import bupt.edu.cn.web.service.DiagramService;
 import bupt.edu.cn.web.service.OptionService;
 import bupt.edu.cn.web.service.ReturnService;
 import bupt.edu.cn.web.util.OptionSort;
+import bupt.edu.cn.web.util.StringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +42,8 @@ public class DiagramController {
     OptionService optionService;
     @Autowired
     ReturnService returnService;
+    @Autowired
+    DiagramSQLRepository diagramSQLRepository;
 
     /**
      * 更新Diagram（好像废弃不用了）
@@ -308,6 +314,66 @@ public class DiagramController {
         // 读入json，为option的内容
         JSONObject option = JSONObject.parseObject(str);
         return OptionSort.optionSort(key1, key2, sort_method, option);
+    }
+
+    /**
+     * 设置 图表的联动图表
+     *
+     * @param userId
+     * @param diagramId
+     * @param associationIds 关联图谱的ID
+     * @param response
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = {"/setDiagramAssociation"}, method = RequestMethod.GET)
+    public ReturnModel setDiagramAssociation(String userId, Long diagramId, String associationIds, HttpServletResponse response, HttpServletRequest request) {
+        System.out.println(diagramId);
+        System.out.println(associationIds);
+        // 被联动的图生成副本
+        String[] arr = associationIds.split(",");
+        String strIds = "";
+        for (int i = 0; i < arr.length; i++) {
+            // Diagram
+            Diagram associationDiagram = diagramRepository.findById(Long.valueOf(arr[i])).get();
+            Diagram newDiagram = new Diagram();
+            newDiagram.setName(associationDiagram.getName());
+            newDiagram.setChart(associationDiagram.getChart());
+            newDiagram.setClassification(associationDiagram.getClassification());
+            newDiagram.setUserId(associationDiagram.getUserId());
+            newDiagram.setDataSourceId(associationDiagram.getDataSourceId());
+            newDiagram.setUpdateTime(new Date());
+            newDiagram.setSaved("false");
+            newDiagram = diagramRepository.saveAndFlush(newDiagram);
+            // sql
+            DiagramSql diagramSql = diagramSQLRepository.findByDiagramid(Long.valueOf(arr[i])).get(0);
+            DiagramSql newDiagramSql = new DiagramSql();
+            newDiagramSql.setDiagramid(newDiagram.getId());
+            newDiagramSql.setDataSourceId(diagramSql.getDataSourceId());
+            newDiagramSql.setSqlinfo(diagramSql.getSqlinfo());
+            newDiagramSql.setUserId(diagramSql.getUserId());
+            newDiagramSql.setDims(diagramSql.getDims());
+            newDiagramSql.setMeas(diagramSql.getMeas());
+            newDiagramSql.setRows(diagramSql.getRows());
+            newDiagramSql.setUpdateTime(new Date());
+            newDiagramSql.setChartType(diagramSql.getChartType());
+
+            diagramSQLRepository.saveAndFlush(newDiagramSql);
+
+            // 联动图谱副本ID
+            strIds = strIds + String.valueOf(newDiagram.getId()) + ",";
+        }
+
+        strIds = StringUtil.custom_trim(strIds, ',');
+        System.out.println("*******联动: " + strIds);
+        // 设置联动关系
+        Diagram diagram = diagramRepository.findById(diagramId).get();
+        diagram.setAssociationIds(strIds);
+        // 所有字段覆盖更新
+        diagramRepository.saveAndFlush(diagram);
+        ReturnModel returnModel = new ReturnModel();
+        returnModel.setResult(true);
+        return returnModel;
     }
 
 }

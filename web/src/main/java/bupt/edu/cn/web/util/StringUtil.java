@@ -1,7 +1,5 @@
 package bupt.edu.cn.web.util;
 
-import org.apache.calcite.util.Static;
-
 import java.util.List;
 import java.util.Map;
 
