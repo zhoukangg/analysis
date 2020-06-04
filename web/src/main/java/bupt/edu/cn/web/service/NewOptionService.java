@@ -39,11 +39,10 @@ public class NewOptionService {
                 option.getJSONObject("yAxis").put("name", meas.get(0));
             }
             List<String> xAxisData = new ArrayList<String>();
-
-            if (listJson.get(0).containsKey(dims[0])) {  //非上卷下钻的情况
+            String str = dims[0];
+            if (listJson.get(0).containsKey(str)) {  //非上卷下钻的情况
                 option.getJSONObject("xAxis").put("name", dims[0]);
                 for (int i = 0; i < listJson.size(); i++)
-
                     xAxisData.add(listJson.get(i).get(dims[0]).toString());
             } else {        //上卷下钻时会出现listJson中没有dim的情况
                 String columnName = "year";

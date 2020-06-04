@@ -8,6 +8,6 @@ package bupt.edu.cn.spark.conf;
  */
 public class consist {
     // 上卷下钻缓存目录
-    public static String DRILLPATH = "/root/zhoukang/projectFile/";
-//    public static String DRILLPATH = "/Users/kang/D/projectFile/";
+//    public static String DRILLPATH = "/root/zhoukang/projectFile/";
+    public static String DRILLPATH = "/Users/kang/D/projectFile/";
 }
